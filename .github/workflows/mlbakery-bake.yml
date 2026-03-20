@@ -65,6 +65,26 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GHCR_TOKEN }}
 
+      - name: Verify bake prerequisites
+        working-directory: goku/mlbakery
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          echo "PWD: $(pwd)"
+          echo "Venv python:"
+          ls -la .claude/skills/mlbakery/mymlbakeryenv/bin/python3
+          echo "Docker:"
+          docker info 2>&1 | head -3
+          echo "Test list_repo_files:"
+          python3 -c "
+          from huggingface_hub import list_repo_files
+          files = list(list_repo_files('${{ inputs.model_repo }}'))
+          safetensors = [f for f in files if f.endswith('.safetensors')]
+          print(f'Total files: {len(files)}, safetensors: {len(safetensors)}')
+          for f in safetensors[:3]:
+              print(f'  {f}')
+          "
+
       - name: Run bake
         working-directory: goku/mlbakery
         env:
@@ -78,9 +98,5 @@ jobs:
           if [ -n "${{ inputs.exclude_patterns }}" ]; then
             ARGS="$ARGS -e '${{ inputs.exclude_patterns }}'"
           fi
-          # Debug: show environment and verify paths
-          echo "PWD: $(pwd)"
-          ls -la .claude/skills/mlbakery/mymlbakeryenv/bin/python3
-          .claude/skills/mlbakery/mymlbakeryenv/bin/python3 -c "from huggingface_hub import list_repo_files; print(list(list_repo_files('${{ inputs.model_repo }}'))[:3])"
           echo "Running: bash .claude/skills/mlbakery/scripts/bake.sh $ARGS"
           eval bash .claude/skills/mlbakery/scripts/bake.sh $ARGS
