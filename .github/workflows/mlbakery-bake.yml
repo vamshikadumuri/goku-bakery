@@ -100,16 +100,22 @@ jobs:
             ARGS="$ARGS -e '${{ inputs.exclude_patterns }}'"
           fi
           echo "Running bake.sh..."
-          eval bash .claude/skills/mlbakery/scripts/bake.sh $ARGS 2>&1 | tee /tmp/bake.log || true
-          BAKE_EXIT=${PIPESTATUS[0]}
+          set -o pipefail
+          eval bash .claude/skills/mlbakery/scripts/bake.sh $ARGS 2>&1 | tee /tmp/bake.log; BAKE_EXIT=$?
           if [ "$BAKE_EXIT" != "0" ]; then
             echo "::error::bake.sh failed with exit code $BAKE_EXIT"
-            # Post last 100 lines as a GitHub issue for debugging
-            BODY=$(tail -100 /tmp/bake.log | head -c 60000)
-            curl -s -X POST \
-              -H "Authorization: token ${{ secrets.GHCR_TOKEN }}" \
-              -H "Accept: application/vnd.github+json" \
-              "https://api.github.com/repos/${{ github.repository }}/issues" \
-              -d "$(python3 -c "import json; print(json.dumps({'title': 'Bake failed: ${{ inputs.model_repo }}', 'body': '```\\n' + open('/tmp/bake.log').read()[-60000:] + '\\n```'}))")"
+            python3 -c "
+          import json, urllib.request
+          with open('/tmp/bake.log') as f:
+              log = f.read()[-60000:]
+          body = json.dumps({'title': 'Bake failed: ${{ inputs.model_repo }}', 'body': '\`\`\`\n' + log + '\n\`\`\`'}).encode()
+          req = urllib.request.Request('https://api.github.com/repos/${{ github.repository }}/issues', data=body, headers={
+              'Authorization': 'token ${{ github.token }}',
+              'Accept': 'application/vnd.github+json',
+              'Content-Type': 'application/json'
+          })
+          resp = urllib.request.urlopen(req)
+          print(f'Issue created: {json.loads(resp.read())[\"html_url\"]}')
+          "
             exit 1
           fi
