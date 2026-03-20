@@ -2,3 +2,6 @@
 *.gguf
 *=*
 *tempdir*
+temp_*
+mymlbakeryenv/
+*.safetensors
