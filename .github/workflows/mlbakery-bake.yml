@@ -36,6 +36,8 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: vk-dev
 
       - name: Set up Python
         uses: actions/setup-python@v5
