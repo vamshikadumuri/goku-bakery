@@ -29,7 +29,7 @@ jobs:
         run: |
           echo "Before cleanup:"
           df -h /
-          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache /usr/local/share/boost
           sudo apt-get clean
           echo "After cleanup:"
           df -h /
@@ -44,7 +44,7 @@ jobs:
 
       - name: Install HuggingFace tools
         run: |
-          pip install hf_transfer==0.1.9 huggingface-hub==0.34.3
+          pip install hf_transfer huggingface-hub
 
       - name: Login to HuggingFace
         run: |
@@ -57,7 +57,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.GHCR_TOKEN }}
 
       - name: Run bake
         working-directory: goku/mlbakery
