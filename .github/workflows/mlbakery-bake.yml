@@ -48,9 +48,8 @@ jobs:
           # bake.sh expects venv at scripts/../mymlbakeryenv = .claude/skills/mlbakery/mymlbakeryenv
           VENV_DIR=".claude/skills/mlbakery/mymlbakeryenv"
           python3 -m venv "$VENV_DIR"
-          "$VENV_DIR/bin/pip" install "huggingface_hub[hf_transfer,cli]"
-          ls -la "$VENV_DIR/bin/" | grep hug || true
-          "$VENV_DIR/bin/python3" -m huggingface_hub.commands.huggingface_cli version
+          "$VENV_DIR/bin/pip" install huggingface_hub hf_transfer
+          "$VENV_DIR/bin/python3" -c "from huggingface_hub.commands.huggingface_cli import main; print('CLI module OK')"
           echo "Venv at: $(realpath $VENV_DIR)"
 
       - name: Login to HuggingFace
