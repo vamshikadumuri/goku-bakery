@@ -107,7 +107,7 @@ jobs:
       - name: Post bake log
         if: always()
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.GHCR_TOKEN }}
         run: |
           python3 << 'PYEOF'
           import json, urllib.request, os
