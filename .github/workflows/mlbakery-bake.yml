@@ -78,5 +78,9 @@ jobs:
           if [ -n "${{ inputs.exclude_patterns }}" ]; then
             ARGS="$ARGS -e '${{ inputs.exclude_patterns }}'"
           fi
+          # Debug: show environment and verify paths
+          echo "PWD: $(pwd)"
+          ls -la .claude/skills/mlbakery/mymlbakeryenv/bin/python3
+          .claude/skills/mlbakery/mymlbakeryenv/bin/python3 -c "from huggingface_hub import list_repo_files; print(list(list_repo_files('${{ inputs.model_repo }}'))[:3])"
           echo "Running: bash .claude/skills/mlbakery/scripts/bake.sh $ARGS"
           eval bash .claude/skills/mlbakery/scripts/bake.sh $ARGS
