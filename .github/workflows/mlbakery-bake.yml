@@ -47,15 +47,16 @@ jobs:
 
       - name: Setup bake environment
         run: |
-          # Create the venv directory bake.sh expects with symlinks to system python
+          # Create a real venv that bake.sh expects
           VENV_DIR="goku/mlbakery/.claude/skills/mlbakery/mymlbakeryenv"
-          mkdir -p "$VENV_DIR/bin"
-          ln -sf "$(which python3)" "$VENV_DIR/bin/python3"
-          # Verify the symlinked python can import huggingface_hub
-          "$VENV_DIR/bin/python3" -c "import huggingface_hub; print('Venv python OK')"
+          python3 -m venv "$VENV_DIR"
+          # Install huggingface_hub inside the venv
+          "$VENV_DIR/bin/pip" install --quiet huggingface_hub hf_transfer
+          # Verify
+          "$VENV_DIR/bin/python3" -c "import huggingface_hub; print('Version:', huggingface_hub.__version__)"
+          "$VENV_DIR/bin/python3" -m huggingface_hub.commands.huggingface_cli version
           # Login to HuggingFace
-          echo "HF_TOKEN length: ${#HF_TOKEN}"
-          huggingface-cli login --token "$HF_TOKEN" || python3 -c "from huggingface_hub import login; login(token='$HF_TOKEN')"
+          "$VENV_DIR/bin/python3" -m huggingface_hub.commands.huggingface_cli login --token "$HF_TOKEN"
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
 
