@@ -1,0 +1,14 @@
+🐍 Using venv Python: /home/runner/work/goku-bakery/goku-bakery/goku/mlbakery/.claude/skills/mlbakery/mymlbakeryenv/bin/python3
+🐳 Docker: OK
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  MLBakery — Baking Qwen/Qwen2.5-Coder-32B
+  Tag prefix: Qwen-Qwen2.5-Coder-32B
+  Start shard: 1
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 Listing safetensor files from Qwen/Qwen2.5-Coder-32B...
+   Found 14 safetensor files → sharded: Qwen-Qwen2.5-Coder-32B-shard1 through Qwen-Qwen2.5-Coder-32B-shard14
+
+📁 Downloading metadata files...
+/home/runner/work/goku-bakery/goku-bakery/goku/mlbakery/.claude/skills/mlbakery/mymlbakeryenv/bin/python3: Error while finding module specification for 'huggingface_hub.commands.huggingface_cli' (ModuleNotFoundError: No module named 'huggingface_hub.commands')
+❌ Metadata download failed. Aborting.
