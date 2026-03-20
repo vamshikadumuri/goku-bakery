@@ -1,0 +1,52 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "Bash(cd:*)",
+      "Bash(df:*)",
+      "Bash(docker:*)",
+      "Bash(docker-credential-desktop.exe:*)",
+      "Bash(docker.exe:*)",
+      "Bash(/usr/bin/docker:*)",
+      "Bash(huggingface-cli:*)",
+      "Bash(hf:*)",
+      "Bash(mkdir:*)",
+      "Bash(rm -rf:*)",
+      "Bash(du:*)",
+      "Bash(date:*)",
+      "Bash(stat:*)",
+      "Bash(wc:*)",
+      "Bash(ps:*)",
+      "Bash(echo:*)",
+      "Bash(cat:*)",
+      "Bash(cp:*)",
+      "Bash(mv:*)",
+      "Bash(source:*)",
+      "Bash(printenv:*)",
+      "Bash(export:*)",
+      "Bash(grep:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(bc:*)",
+      "Bash(sleep:*)",
+      "Bash(chmod:*)",
+      "Bash(python3:*)",
+      "Bash(*/python3:*)",
+      "Bash(pip install:*)",
+      "Bash(bash scripts/bake.sh:*)",
+      "Bash(wsl bash:*)",
+      "Bash(unzip:*)",
+      "Bash(cmd.exe:*)",
+      "Bash(file:*)",
+      "Read(//home/vamshikadumuri/**)",
+      "Read(//mnt/c/Users/**)",
+      "Read(//mnt/d/CodeandLearn/**)",
+      "Read(//usr/bin/**)",
+      "Read(//mnt/c/Program Files/Docker/Docker/resources/bin/**)"
+    ],
+    "deny": [
+      "Read(~/.ssh/*)"
+    ]
+  }
+}
