@@ -45,15 +45,21 @@ jobs:
       - name: Install HuggingFace tools
         run: |
           pip install hf_transfer huggingface-hub
-          echo "huggingface-cli path: $(which huggingface-cli || echo NOT FOUND)"
-          python3 -m huggingface_hub.commands.huggingface_cli version || true
+          which huggingface-cli && huggingface-cli version || echo "CLI not on PATH, will use python -m"
 
       - name: Login to HuggingFace
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          echo "HF_TOKEN length: ${#HF_TOKEN}"
-          python3 -m huggingface_hub.commands.huggingface_cli login --token "$HF_TOKEN"
+          echo "Token length: ${#HF_TOKEN}"
+          if [ -z "$HF_TOKEN" ]; then
+            echo "::error::HF_TOKEN secret is empty! Add it in Settings > Secrets > Actions"
+            exit 1
+          fi
+          # Try CLI login, fall back to python module
+          huggingface-cli login --token "$HF_TOKEN" 2>/dev/null || \
+            python3 -c "from huggingface_hub import login; login(token='$HF_TOKEN')"
+          echo "Login successful"
 
       - name: Login to GHCR
         uses: docker/login-action@v3
