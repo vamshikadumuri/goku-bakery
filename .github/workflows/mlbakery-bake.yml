@@ -87,6 +87,8 @@ jobs:
           "
 
       - name: Run bake
+        id: bake
+        continue-on-error: true
         working-directory: goku/mlbakery
         env:
           HF_HUB_ENABLE_HF_TRANSFER: '1'
@@ -100,22 +102,33 @@ jobs:
             ARGS="$ARGS -e '${{ inputs.exclude_patterns }}'"
           fi
           echo "Running bake.sh..."
-          set -o pipefail
-          eval bash .claude/skills/mlbakery/scripts/bake.sh $ARGS 2>&1 | tee /tmp/bake.log; BAKE_EXIT=$?
-          if [ "$BAKE_EXIT" != "0" ]; then
-            echo "::error::bake.sh failed with exit code $BAKE_EXIT"
-            python3 -c "
-          import json, urllib.request
-          with open('/tmp/bake.log') as f:
-              log = f.read()[-60000:]
-          body = json.dumps({'title': 'Bake failed: ${{ inputs.model_repo }}', 'body': '\`\`\`\n' + log + '\n\`\`\`'}).encode()
-          req = urllib.request.Request('https://api.github.com/repos/${{ github.repository }}/issues', data=body, headers={
-              'Authorization': 'token ${{ github.token }}',
-              'Accept': 'application/vnd.github+json',
-              'Content-Type': 'application/json'
-          })
+          eval bash .claude/skills/mlbakery/scripts/bake.sh $ARGS 2>&1 | tee /tmp/bake.log
+
+      - name: Report failure
+        if: steps.bake.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "Bake failed! Posting logs as issue..."
+          LOG=$(tail -200 /tmp/bake.log | head -c 60000)
+          python3 << 'PYEOF'
+          import json, urllib.request, os
+          log = open('/tmp/bake.log').read()[-60000:]
+          body = json.dumps({
+              'title': 'Bake failed: ${{ inputs.model_repo }}',
+              'body': '```\n' + log + '\n```'
+          }).encode()
+          req = urllib.request.Request(
+              'https://api.github.com/repos/${{ github.repository }}/issues',
+              data=body,
+              headers={
+                  'Authorization': f'token {os.environ["GH_TOKEN"]}',
+                  'Accept': 'application/vnd.github+json',
+                  'Content-Type': 'application/json'
+              }
+          )
           resp = urllib.request.urlopen(req)
-          print(f'Issue created: {json.loads(resp.read())[\"html_url\"]}')
-          "
-            exit 1
-          fi
+          result = json.loads(resp.read())
+          print(f'Issue created: {result["html_url"]}')
+          PYEOF
+          exit 1
