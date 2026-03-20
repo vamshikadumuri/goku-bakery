@@ -104,18 +104,19 @@ jobs:
           echo "Running bake.sh..."
           eval bash .claude/skills/mlbakery/scripts/bake.sh $ARGS 2>&1 | tee /tmp/bake.log
 
-      - name: Report failure
-        if: steps.bake.outcome == 'failure'
+      - name: Post bake log
+        if: always()
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          echo "Bake failed! Posting logs as issue..."
-          LOG=$(tail -200 /tmp/bake.log | head -c 60000)
           python3 << 'PYEOF'
           import json, urllib.request, os
-          log = open('/tmp/bake.log').read()[-60000:]
+          try:
+              log = open('/tmp/bake.log').read()[-60000:]
+          except:
+              log = 'No bake.log found'
           body = json.dumps({
-              'title': 'Bake failed: ${{ inputs.model_repo }}',
+              'title': 'Bake log: ${{ inputs.model_repo }}',
               'body': '```\n' + log + '\n```'
           }).encode()
           req = urllib.request.Request(
@@ -131,4 +132,3 @@ jobs:
           result = json.loads(resp.read())
           print(f'Issue created: {result["html_url"]}')
           PYEOF
-          exit 1
