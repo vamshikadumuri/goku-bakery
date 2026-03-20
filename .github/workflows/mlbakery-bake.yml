@@ -27,47 +27,36 @@ jobs:
     steps:
       - name: Free up disk space
         run: |
-          echo "Before cleanup:"
           df -h /
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache /usr/local/share/boost
           sudo apt-get clean
-          echo "After cleanup:"
           df -h /
 
-      - name: Checkout repository
+      - name: Checkout vk-dev
         uses: actions/checkout@v4
         with:
           ref: vk-dev
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install HuggingFace tools and create venv
-        working-directory: goku/mlbakery
+      - name: Install dependencies
         run: |
-          # Install globally first
           pip install huggingface_hub hf_transfer
-          which huggingface-cli
-          huggingface-cli version
-          # Create venv that bake.sh expects (scripts/../mymlbakeryenv)
-          VENV_DIR=".claude/skills/mlbakery/mymlbakeryenv"
-          mkdir -p "$VENV_DIR/bin"
-          # Symlink system python3 into the venv so bake.sh finds it
-          ln -sf "$(which python3)" "$VENV_DIR/bin/python3"
-          echo "Fake venv at: $(realpath $VENV_DIR)"
-          "$VENV_DIR/bin/python3" -c "import huggingface_hub; print('OK:', huggingface_hub.__version__)"
+          echo "Python: $(python3 --version) at $(which python3)"
+          echo "HF CLI: $(which huggingface-cli || echo 'NOT FOUND')"
+          python3 -c "import huggingface_hub; print('huggingface_hub', huggingface_hub.__version__)"
 
-      - name: Login to HuggingFace
+      - name: Setup bake environment
+        run: |
+          # Create the venv directory bake.sh expects with symlinks to system python
+          VENV_DIR="goku/mlbakery/.claude/skills/mlbakery/mymlbakeryenv"
+          mkdir -p "$VENV_DIR/bin"
+          ln -sf "$(which python3)" "$VENV_DIR/bin/python3"
+          # Verify the symlinked python can import huggingface_hub
+          "$VENV_DIR/bin/python3" -c "import huggingface_hub; print('Venv python OK')"
+          # Login to HuggingFace
+          echo "HF_TOKEN length: ${#HF_TOKEN}"
+          huggingface-cli login --token "$HF_TOKEN" || python3 -c "from huggingface_hub import login; login(token='$HF_TOKEN')"
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: |
-          if [ -z "$HF_TOKEN" ]; then
-            echo "::error::HF_TOKEN secret is empty!"
-            exit 1
-          fi
-          huggingface-cli login --token "$HF_TOKEN"
 
       - name: Login to GHCR
         uses: docker/login-action@v3
