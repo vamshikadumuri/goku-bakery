@@ -104,31 +104,22 @@ jobs:
           echo "Running bake.sh..."
           eval bash .claude/skills/mlbakery/scripts/bake.sh $ARGS 2>&1 | tee /tmp/bake.log
 
-      - name: Post bake log
+      - name: Upload bake log
         if: always()
         env:
           GH_TOKEN: ${{ secrets.GHCR_TOKEN }}
         run: |
-          python3 << 'PYEOF'
-          import json, urllib.request, os
-          try:
-              log = open('/tmp/bake.log').read()[-60000:]
-          except:
-              log = 'No bake.log found'
-          body = json.dumps({
-              'title': 'Bake log: ${{ inputs.model_repo }}',
-              'body': '```\n' + log + '\n```'
-          }).encode()
-          req = urllib.request.Request(
-              'https://api.github.com/repos/${{ github.repository }}/issues',
-              data=body,
-              headers={
-                  'Authorization': f'token {os.environ["GH_TOKEN"]}',
-                  'Accept': 'application/vnd.github+json',
-                  'Content-Type': 'application/json'
-              }
-          )
-          resp = urllib.request.urlopen(req)
-          result = json.loads(resp.read())
-          print(f'Issue created: {result["html_url"]}')
-          PYEOF
+          if [ -f /tmp/bake.log ]; then
+            echo "=== Last 200 lines of bake.log ==="
+            tail -200 /tmp/bake.log
+            # Also upload as a file to the repo for debugging
+            CONTENT=$(base64 -w 0 /tmp/bake.log | head -c 60000)
+            TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+            curl -s -X PUT \
+              -H "Authorization: token $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${{ github.repository }}/contents/bake_logs/log_${TIMESTAMP}.txt" \
+              -d "{\"message\":\"Bake log $TIMESTAMP\",\"content\":\"$CONTENT\",\"branch\":\"main\"}" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('content',{}).get('html_url', d.get('message','')))"
+          else
+            echo "No bake.log found"
+          fi
