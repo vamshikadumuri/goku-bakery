@@ -29,7 +29,7 @@ jobs:
       - name: Free up disk space
         run: |
           df -h /
-          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache /usr/local/share/boost
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/share/boost
           sudo apt-get clean
           df -h /
 
@@ -46,25 +46,18 @@ jobs:
           python3 -c "import huggingface_hub; print('huggingface_hub', huggingface_hub.__version__)"
 
       - name: Setup bake environment
-        run: |
-          # Create fake venv that bake.sh expects
-          # bake.sh uses $VENV_PYTHON which resolves to PROJECT_DIR/mymlbakeryenv/bin/python3
-          VENV_DIR="goku/mlbakery/.claude/skills/mlbakery/mymlbakeryenv"
-          mkdir -p "$VENV_DIR/bin"
-          # Create a wrapper script (not symlink) so python -m works correctly
-          REAL_PYTHON="$(which python3)"
-          cat > "$VENV_DIR/bin/python3" << WRAPPER
-          #!/bin/bash
-          exec $REAL_PYTHON "\$@"
-          WRAPPER
-          chmod +x "$VENV_DIR/bin/python3"
-          # Verify
-          "$VENV_DIR/bin/python3" -c "import huggingface_hub; print('OK:', huggingface_hub.__version__)"
-          "$VENV_DIR/bin/python3" -m huggingface_hub.commands.huggingface_cli version
-          # Login
-          huggingface-cli login --token "$HF_TOKEN"
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          VENV_DIR="goku/mlbakery/.claude/skills/mlbakery/mymlbakeryenv"
+          mkdir -p "$VENV_DIR/bin"
+          REAL_PYTHON="$(which python3)"
+          printf '#!/bin/bash\nexec %s "$@"\n' "$REAL_PYTHON" > "$VENV_DIR/bin/python3"
+          chmod +x "$VENV_DIR/bin/python3"
+          echo "Wrapper python: $("$VENV_DIR/bin/python3" --version)"
+          "$VENV_DIR/bin/python3" -c "import huggingface_hub; print('OK:', huggingface_hub.__version__)"
+          "$VENV_DIR/bin/python3" -m huggingface_hub.commands.huggingface_cli version
+          huggingface-cli login --token "$HF_TOKEN"
 
       - name: Login to GHCR
         uses: docker/login-action@v3
