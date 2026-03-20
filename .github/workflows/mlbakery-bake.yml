@@ -42,24 +42,26 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install HuggingFace tools
+      - name: Create venv and install HuggingFace tools
+        working-directory: goku/mlbakery
         run: |
-          pip install hf_transfer huggingface-hub
-          which huggingface-cli && huggingface-cli version || echo "CLI not on PATH, will use python -m"
+          # bake.sh expects venv at scripts/../mymlbakeryenv = .claude/skills/mlbakery/mymlbakeryenv
+          VENV_DIR=".claude/skills/mlbakery/mymlbakeryenv"
+          python3 -m venv "$VENV_DIR"
+          "$VENV_DIR/bin/pip" install hf_transfer huggingface_hub
+          "$VENV_DIR/bin/python3" -c "import huggingface_hub; print('huggingface_hub', huggingface_hub.__version__)"
+          echo "Venv at: $(realpath $VENV_DIR)"
 
       - name: Login to HuggingFace
+        working-directory: goku/mlbakery
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          echo "Token length: ${#HF_TOKEN}"
           if [ -z "$HF_TOKEN" ]; then
-            echo "::error::HF_TOKEN secret is empty! Add it in Settings > Secrets > Actions"
+            echo "::error::HF_TOKEN secret is empty!"
             exit 1
           fi
-          # Try CLI login, fall back to python module
-          huggingface-cli login --token "$HF_TOKEN" 2>/dev/null || \
-            python3 -c "from huggingface_hub import login; login(token='$HF_TOKEN')"
-          echo "Login successful"
+          .claude/skills/mlbakery/mymlbakeryenv/bin/huggingface-cli login --token "$HF_TOKEN"
 
       - name: Login to GHCR
         uses: docker/login-action@v3
