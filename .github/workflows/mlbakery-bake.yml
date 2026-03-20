@@ -44,18 +44,22 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Create venv and install HuggingFace tools
+      - name: Install HuggingFace tools and create venv
         working-directory: goku/mlbakery
         run: |
-          # bake.sh expects venv at scripts/../mymlbakeryenv = .claude/skills/mlbakery/mymlbakeryenv
+          # Install globally first
+          pip install huggingface_hub hf_transfer
+          which huggingface-cli
+          huggingface-cli version
+          # Create venv that bake.sh expects (scripts/../mymlbakeryenv)
           VENV_DIR=".claude/skills/mlbakery/mymlbakeryenv"
-          python3 -m venv "$VENV_DIR"
-          "$VENV_DIR/bin/pip" install huggingface_hub hf_transfer
-          "$VENV_DIR/bin/python3" -c "from huggingface_hub.commands.huggingface_cli import main; print('CLI module OK')"
-          echo "Venv at: $(realpath $VENV_DIR)"
+          mkdir -p "$VENV_DIR/bin"
+          # Symlink system python3 into the venv so bake.sh finds it
+          ln -sf "$(which python3)" "$VENV_DIR/bin/python3"
+          echo "Fake venv at: $(realpath $VENV_DIR)"
+          "$VENV_DIR/bin/python3" -c "import huggingface_hub; print('OK:', huggingface_hub.__version__)"
 
       - name: Login to HuggingFace
-        working-directory: goku/mlbakery
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
@@ -63,8 +67,7 @@ jobs:
             echo "::error::HF_TOKEN secret is empty!"
             exit 1
           fi
-          VENV=".claude/skills/mlbakery/mymlbakeryenv/bin/python3"
-          "$VENV" -m huggingface_hub.commands.huggingface_cli login --token "$HF_TOKEN"
+          huggingface-cli login --token "$HF_TOKEN"
 
       - name: Login to GHCR
         uses: docker/login-action@v3
