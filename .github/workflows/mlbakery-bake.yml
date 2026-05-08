@@ -15,6 +15,9 @@ on:
         description: 'Comma-separated exclude patterns (for resuming)'
         required: false
         default: ''
+  push:
+    branches:
+      - claude/build-qwen3-coder-push-tCW7a
 
 jobs:
   bake:
@@ -24,6 +27,11 @@ jobs:
       packages: write
       contents: read
       issues: write
+
+    env:
+      MODEL_REPO: ${{ inputs.model_repo || 'mlx-community/Qwen3-Coder-30B-A3B-Instruct-4bit' }}
+      START_SHARD: ${{ inputs.start_shard || '1' }}
+      EXCLUDE_PATTERNS: ${{ inputs.exclude_patterns || '' }}
 
     steps:
       - name: Free up disk space
@@ -72,6 +80,7 @@ jobs:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
           echo "PWD: $(pwd)"
+          echo "Model: ${{ env.MODEL_REPO }}"
           echo "Venv python:"
           ls -la .claude/skills/mlbakery/mymlbakeryenv/bin/python3
           echo "Docker:"
@@ -79,7 +88,7 @@ jobs:
           echo "Test list_repo_files:"
           python3 -c "
           from huggingface_hub import list_repo_files
-          files = list(list_repo_files('${{ inputs.model_repo }}'))
+          files = list(list_repo_files('${{ env.MODEL_REPO }}'))
           safetensors = [f for f in files if f.endswith('.safetensors')]
           print(f'Total files: {len(files)}, safetensors: {len(safetensors)}')
           for f in safetensors[:3]:
@@ -94,12 +103,12 @@ jobs:
           HF_HUB_ENABLE_HF_TRANSFER: '1'
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          ARGS="-m ${{ inputs.model_repo }}"
-          if [ "${{ inputs.start_shard }}" != "1" ]; then
-            ARGS="$ARGS -s ${{ inputs.start_shard }}"
+          ARGS="-m ${{ env.MODEL_REPO }}"
+          if [ "${{ env.START_SHARD }}" != "1" ]; then
+            ARGS="$ARGS -s ${{ env.START_SHARD }}"
           fi
-          if [ -n "${{ inputs.exclude_patterns }}" ]; then
-            ARGS="$ARGS -e '${{ inputs.exclude_patterns }}'"
+          if [ -n "${{ env.EXCLUDE_PATTERNS }}" ]; then
+            ARGS="$ARGS -e '${{ env.EXCLUDE_PATTERNS }}'"
           fi
           echo "Running bake.sh..."
           eval bash .claude/skills/mlbakery/scripts/bake.sh $ARGS 2>&1 | tee /tmp/bake.log
