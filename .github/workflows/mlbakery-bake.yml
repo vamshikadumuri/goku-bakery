@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       model_repo:
-        description: 'HuggingFace model repo (e.g. Qwen/Qwen2.5-Coder-32B)'
+        description: 'HuggingFace model repo (e.g. Qwen/Qwen3-Coder-30B-A3B-Instruct, Qwen/Qwen3-Coder-30B-A3B-Instruct-AWQ)'
         required: true
-        default: 'Qwen/Qwen2.5-Coder-32B'
+        default: 'Qwen/Qwen3-Coder-30B-A3B-Instruct-AWQ'
       start_shard:
         description: 'Start from shard number (for resuming)'
         required: false
