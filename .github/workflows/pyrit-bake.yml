@@ -7,10 +7,6 @@ on:
         description: 'PyRIT version to install from PyPI (e.g. 0.13.0)'
         required: true
         default: '0.13.0'
-      push_latest:
-        description: 'Also tag as :latest'
-        required: false
-        default: 'true'
 
 jobs:
   bake:
@@ -28,8 +24,11 @@ jobs:
           sudo apt-get clean
           df -h /
 
+      # driver: docker shares images between build steps via the local daemon
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+        with:
+          driver: docker
 
       - name: Login to GHCR
         uses: docker/login-action@v3
@@ -41,45 +40,29 @@ jobs:
       - name: Clone PyRIT repository
         run: |
           git clone --depth=1 https://github.com/microsoft/PyRIT.git pyrit-src
-          cd pyrit-src
-          echo "PYRIT_COMMIT=$(git rev-parse HEAD)" >> $GITHUB_ENV
+          echo "PYRIT_COMMIT=$(git -C pyrit-src rev-parse HEAD)" >> $GITHUB_ENV
 
       - name: Build devcontainer base image
-        run: |
-          DOCKER_BUILDKIT=1 docker build \
-            -f pyrit-src/.devcontainer/Dockerfile \
-            -t pyrit-devcontainer:base \
-            pyrit-src
+        uses: docker/build-push-action@v5
+        with:
+          context: pyrit-src
+          file: pyrit-src/.devcontainer/Dockerfile
+          push: false
+          load: true
+          tags: pyrit-devcontainer:base
 
       - name: Build and push PyRIT production image
-        env:
-          PYRIT_VERSION: ${{ inputs.pyrit_version }}
-          PUSH_LATEST: ${{ inputs.push_latest }}
-        run: |
-          OWNER_LOWER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          IMAGE_BASE="ghcr.io/${OWNER_LOWER}/pyrit"
-
-          TAGS="-t ${IMAGE_BASE}:${PYRIT_VERSION}"
-          if [ "$PUSH_LATEST" = "true" ]; then
-            TAGS="$TAGS -t ${IMAGE_BASE}:latest"
-          fi
-
-          DOCKER_BUILDKIT=1 docker build \
-            -f pyrit-src/docker/Dockerfile \
-            --build-arg BASE_IMAGE=pyrit-devcontainer:base \
-            --build-arg PYRIT_SOURCE=pypi \
-            --build-arg PYRIT_VERSION="${PYRIT_VERSION}" \
-            --build-arg GIT_COMMIT="${PYRIT_COMMIT}" \
-            --build-arg GIT_MODIFIED=false \
-            $TAGS \
-            pyrit-src
-
-          docker push "${IMAGE_BASE}:${PYRIT_VERSION}"
-          if [ "$PUSH_LATEST" = "true" ]; then
-            docker push "${IMAGE_BASE}:latest"
-          fi
-
-          echo "Pushed: ${IMAGE_BASE}:${PYRIT_VERSION}"
-          if [ "$PUSH_LATEST" = "true" ]; then
-            echo "Pushed: ${IMAGE_BASE}:latest"
-          fi
+        uses: docker/build-push-action@v5
+        with:
+          context: pyrit-src
+          file: pyrit-src/docker/Dockerfile
+          push: true
+          build-args: |
+            BASE_IMAGE=pyrit-devcontainer:base
+            PYRIT_SOURCE=pypi
+            PYRIT_VERSION=${{ inputs.pyrit_version }}
+            GIT_COMMIT=${{ env.PYRIT_COMMIT }}
+            GIT_MODIFIED=false
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/pyrit:v${{ inputs.pyrit_version }}
+            ghcr.io/${{ github.repository_owner }}/pyrit:latest
