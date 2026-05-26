@@ -24,7 +24,6 @@ jobs:
           sudo apt-get clean
           df -h /
 
-      # driver: docker shares images between build steps via the local daemon
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
@@ -37,10 +36,18 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GHCR_TOKEN }}
 
-      - name: Clone PyRIT repository
+      # Clone at the version tag so the local pyrit/ source (which PyRIT's
+      # Dockerfile unconditionally COPYs into /app/pyrit/) matches the PyPI
+      # version we're installing. Otherwise `import pyrit` from /app reports
+      # the dev version from main branch instead of the installed PyPI version.
+      - name: Clone PyRIT at version tag
+        env:
+          VERSION: ${{ inputs.pyrit_version }}
         run: |
-          git clone --depth=1 https://github.com/microsoft/PyRIT.git pyrit-src
+          git clone --depth=1 --branch "v${VERSION}" https://github.com/microsoft/PyRIT.git pyrit-src
           echo "PYRIT_COMMIT=$(git -C pyrit-src rev-parse HEAD)" >> $GITHUB_ENV
+          echo "Local source version:"
+          grep -E '__version__' pyrit-src/pyrit/__init__.py || true
 
       - name: Build devcontainer base image
         uses: docker/build-push-action@v5
@@ -66,3 +73,27 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository_owner }}/pyrit:v${{ inputs.pyrit_version }}
             ghcr.io/${{ github.repository_owner }}/pyrit:latest
+
+      - name: Verify installed PyRIT version
+        env:
+          VERSION: ${{ inputs.pyrit_version }}
+        run: |
+          OWNER_LOWER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          IMAGE="ghcr.io/${OWNER_LOWER}/pyrit:v${VERSION}"
+          echo "Pulling and verifying ${IMAGE}..."
+          docker pull "${IMAGE}"
+
+          echo "--- From /app (default WORKDIR, picks up local source) ---"
+          docker run --rm --entrypoint="" -w /app "${IMAGE}" \
+            /opt/venv/bin/python -c "import pyrit; print(pyrit.__version__)"
+
+          echo "--- From /tmp (picks up installed PyPI package) ---"
+          INSTALLED=$(docker run --rm --entrypoint="" -w /tmp "${IMAGE}" \
+            /opt/venv/bin/python -c "import pyrit; print(pyrit.__version__)")
+          echo "Installed: ${INSTALLED}"
+
+          if [ "${INSTALLED}" != "${VERSION}" ]; then
+            echo "ERROR: expected ${VERSION}, got ${INSTALLED}"
+            exit 1
+          fi
+          echo "OK: PyRIT ${INSTALLED} matches requested ${VERSION}"
