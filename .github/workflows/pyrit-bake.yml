@@ -71,7 +71,7 @@ jobs:
             GIT_COMMIT=${{ env.PYRIT_COMMIT }}
             GIT_MODIFIED=false
           tags: |
-            ghcr.io/${{ github.repository_owner }}/pyrit:v${{ inputs.pyrit_version }}
+            ghcr.io/${{ github.repository_owner }}/pyrit:${{ inputs.pyrit_version }}-v1
             ghcr.io/${{ github.repository_owner }}/pyrit:latest
 
       - name: Verify installed PyRIT version
@@ -79,7 +79,7 @@ jobs:
           VERSION: ${{ inputs.pyrit_version }}
         run: |
           OWNER_LOWER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          IMAGE="ghcr.io/${OWNER_LOWER}/pyrit:v${VERSION}"
+          IMAGE="ghcr.io/${OWNER_LOWER}/pyrit:${VERSION}-v1"
           echo "Pulling and verifying ${IMAGE}..."
           docker pull "${IMAGE}"
 
