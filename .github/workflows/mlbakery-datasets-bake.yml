@@ -1,6 +1,12 @@
 name: MLBakery Datasets Bake
 
 on:
+  push:
+    branches:
+      - claude/happy-knuth-XIm9b
+    paths:
+      - 'goku/mlbakery/datasets/**'
+      - '.github/workflows/mlbakery-datasets-bake.yml'
   workflow_dispatch:
     inputs:
       datasets:
@@ -51,21 +57,12 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GHCR_TOKEN }}
 
-      - name: Prepare download args
+      - name: Prepare image tag
         id: prep
         run: |
-          DATASETS="${{ inputs.datasets }}"
           TAG="${{ inputs.tag }}"
           IMAGE="ghcr.io/${{ github.repository_owner }}/mlbakery:${TAG:-pyrit-datasets}"
           echo "image=${IMAGE}" >> "$GITHUB_OUTPUT"
-
-          # If specific datasets requested, pass them as CMD override args
-          if [[ -n "${DATASETS}" ]]; then
-            DATASETS_ARG="python /download_datasets.py ${DATASETS}"
-          else
-            DATASETS_ARG=""
-          fi
-          echo "datasets_arg=${DATASETS_ARG}" >> "$GITHUB_OUTPUT"
 
       - name: Build and push
         uses: docker/build-push-action@v5
