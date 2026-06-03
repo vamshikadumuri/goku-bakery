@@ -33,10 +33,10 @@ jobs:
           sudo apt-get clean
           df -h /
 
-      - name: Checkout vk-dev
+      - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: vk-dev
+          ref: claude/bake-push-mlx-ghcr-vmTXf
 
       - name: Install dependencies
         run: |
