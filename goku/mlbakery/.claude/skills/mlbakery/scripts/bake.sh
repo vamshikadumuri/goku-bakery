@@ -22,86 +22,114 @@ fi
 MODEL_NAME=$(echo "$MODEL_REPO" | cut -d'/' -f2 | tr '[:upper:]' '[:lower:]')
 OWNER="${GITHUB_REPOSITORY_OWNER:-$(whoami)}"
 OWNER=$(echo "$OWNER" | tr '[:upper:]' '[:lower:]')
-IMAGE_TAG="ghcr.io/${OWNER}/mlbakery:${MODEL_NAME}"
+BASE_TAG="ghcr.io/${OWNER}/mlbakery:${MODEL_NAME}"
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+MLBAKERY_DIR="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
 
 echo "=== Bake Configuration ==="
 echo "Model repo:    $MODEL_REPO"
 echo "Start shard:   $START_SHARD"
 echo "Exclude:       $EXCLUDE_PATTERNS"
-echo "Image tag:     $IMAGE_TAG"
+echo "Base tag:      $BASE_TAG"
+echo "Dockerfile:    $MLBAKERY_DIR/Dockerfile"
 echo "=========================="
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-MLBAKERY_DIR="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
-DOWNLOAD_DIR="$(pwd)/model_download"
-mkdir -p "$DOWNLOAD_DIR"
+# Fetch full file list from HuggingFace into /tmp/file_list.json
+MODEL_REPO="$MODEL_REPO" EXCLUDE_PATTERNS="$EXCLUDE_PATTERNS" python3 << 'PYEOF'
+import os, json, fnmatch, sys
+from huggingface_hub import list_repo_files
 
-python3 << PYEOF
-import os
-import sys
-import fnmatch
-from huggingface_hub import list_repo_files, hf_hub_download
+repo_id      = os.environ['MODEL_REPO']
+exclude_str  = os.environ.get('EXCLUDE_PATTERNS', '')
+token        = os.environ.get('HF_TOKEN')
 
-repo_id = "${MODEL_REPO}"
-download_dir = "${DOWNLOAD_DIR}"
-start_shard = ${START_SHARD}
-token = os.environ.get("HF_TOKEN")
+all_files       = list(list_repo_files(repo_id, token=token))
+exclude_pats    = [p.strip() for p in exclude_str.split(',') if p.strip()] if exclude_str else []
+excluded        = lambda f: any(fnmatch.fnmatch(f, p) for p in exclude_pats)
 
-exclude_patterns = []
-if "${EXCLUDE_PATTERNS}":
-    exclude_patterns = [p.strip() for p in "${EXCLUDE_PATTERNS}".split(",") if p.strip()]
+safetensors = sorted([f for f in all_files if f.endswith('.safetensors') and not excluded(f)])
+others      = [f for f in all_files if not f.endswith('.safetensors') and not excluded(f)]
 
-print(f"Listing files in {repo_id}...")
-all_files = list(list_repo_files(repo_id, token=token))
-print(f"Total files: {len(all_files)}")
-
-def is_excluded(filename):
-    for pattern in exclude_patterns:
-        if fnmatch.fnmatch(filename, pattern):
-            return True
-    return False
-
-files_to_download = [f for f in all_files if not is_excluded(f)]
-print(f"Files to download (after exclusions): {len(files_to_download)}")
-
-safetensors_files = sorted([f for f in files_to_download if f.endswith(".safetensors")])
-other_files = [f for f in files_to_download if not f.endswith(".safetensors")]
-
-print(f"Safetensors shards: {len(safetensors_files)}")
-print(f"Other files: {len(other_files)}")
-
-for filename in other_files:
-    print(f"Downloading: {filename}")
-    try:
-        hf_hub_download(repo_id=repo_id, filename=filename, local_dir=download_dir, token=token)
-    except Exception as e:
-        print(f"  WARNING: Failed to download {filename}: {e}")
-
-for i, filename in enumerate(safetensors_files, start=1):
-    if i < start_shard:
-        print(f"Skipping shard {i}/{len(safetensors_files)}: {filename}")
-        continue
-    print(f"Downloading shard {i}/{len(safetensors_files)}: {filename}")
-    try:
-        hf_hub_download(repo_id=repo_id, filename=filename, local_dir=download_dir, token=token)
-        print(f"  Shard {i} complete")
-    except Exception as e:
-        print(f"  ERROR: Failed shard {i}: {e}", file=sys.stderr)
-        sys.exit(1)
-
-print("All downloads complete!")
+print(f"Total files: {len(all_files)}  |  safetensors shards: {len(safetensors)}  |  other: {len(others)}")
+json.dump({'safetensors': safetensors, 'others': others}, open('/tmp/file_list.json', 'w'))
 PYEOF
 
-echo "Building Docker image: $IMAGE_TAG"
-TEMP_DIR=$(mktemp -d "$(pwd)/bake_ctx.XXXXXXXX")
-cp -r "$DOWNLOAD_DIR/." "$TEMP_DIR/"
+TOTAL_SHARDS=$(python3 -c "import json; print(len(json.load(open('/tmp/file_list.json'))['safetensors']))")
+echo "Total shards: $TOTAL_SHARDS  |  Starting from: $START_SHARD"
 
-docker build -f "$MLBAKERY_DIR/Dockerfile" -t "$IMAGE_TAG" "$TEMP_DIR"
+# Download config/tokenizer files once into a reusable staging dir
+CONFIG_DIR=$(mktemp -d "$(pwd)/config.XXXXXXXX")
+echo "--- Downloading config/tokenizer files ---"
+MODEL_REPO="$MODEL_REPO" CONFIG_DIR="$CONFIG_DIR" python3 << 'PYEOF'
+import os, json
+from huggingface_hub import hf_hub_download
 
-echo "Pushing to GHCR: $IMAGE_TAG"
-docker push "$IMAGE_TAG"
+data    = json.load(open('/tmp/file_list.json'))
+token   = os.environ.get('HF_TOKEN')
+repo_id = os.environ['MODEL_REPO']
+dst     = os.environ['CONFIG_DIR']
 
-rm -rf "$TEMP_DIR" "$DOWNLOAD_DIR"
+for f in data['others']:
+    print(f"  {f}")
+    try:
+        hf_hub_download(repo_id=repo_id, filename=f, local_dir=dst, token=token)
+    except Exception as e:
+        print(f"  WARNING: {f}: {e}")
+print("Config files done")
+PYEOF
 
-echo "=== SUCCESS ==="
-echo "Baked and pushed: $IMAGE_TAG"
+# Bake each shard individually
+for SHARD_IDX in $(seq 1 "$TOTAL_SHARDS"); do
+    SHARD_FILE=$(python3 -c "import json; print(json.load(open('/tmp/file_list.json'))['safetensors'][${SHARD_IDX}-1])")
+    SHARD_TAG="${BASE_TAG}-shard-$(printf '%03d' "$SHARD_IDX")"
+
+    if [ "$SHARD_IDX" -lt "$START_SHARD" ]; then
+        echo "Skipping shard $SHARD_IDX/$TOTAL_SHARDS: $SHARD_FILE"
+        continue
+    fi
+
+    echo ""
+    echo "=== Shard $SHARD_IDX/$TOTAL_SHARDS: $SHARD_FILE ==="
+    echo "    Tag: $SHARD_TAG"
+
+    SHARD_DIR=$(mktemp -d "$(pwd)/shard.XXXXXXXX")
+
+    # Copy config files into shard context
+    cp -r "$CONFIG_DIR/." "$SHARD_DIR/"
+
+    # Download this shard
+    echo "  Downloading..."
+    SHARD_FILE="$SHARD_FILE" MODEL_REPO="$MODEL_REPO" SHARD_DIR="$SHARD_DIR" python3 << 'PYEOF'
+import os
+from huggingface_hub import hf_hub_download
+
+hf_hub_download(
+    repo_id   = os.environ['MODEL_REPO'],
+    filename  = os.environ['SHARD_FILE'],
+    local_dir = os.environ['SHARD_DIR'],
+    token     = os.environ.get('HF_TOKEN'),
+)
+print("  Download complete")
+PYEOF
+
+    # Build
+    echo "  Building image..."
+    docker build -f "$MLBAKERY_DIR/Dockerfile" -t "$SHARD_TAG" "$SHARD_DIR"
+
+    # Push
+    echo "  Pushing $SHARD_TAG..."
+    docker push "$SHARD_TAG"
+
+    # Free disk space before next shard
+    docker rmi "$SHARD_TAG" || true
+    rm -rf "$SHARD_DIR"
+
+    echo "  Done: $SHARD_TAG"
+done
+
+rm -rf "$CONFIG_DIR"
+
+echo ""
+echo "=== ALL SHARDS BAKED AND PUSHED ==="
+echo "Images: ${BASE_TAG}-shard-001  through  ${BASE_TAG}-shard-$(printf '%03d' "$TOTAL_SHARDS")"
