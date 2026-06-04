@@ -42,7 +42,7 @@ jobs:
         run: |
           pip install huggingface_hub hf_transfer
           echo "Python: $(python3 --version) at $(which python3)"
-          echo "HF CLI: $(which huggingface-cli || echo 'NOT FOUND')"
+          echo "HF CLI: $(which hf || echo 'NOT FOUND')"
           python3 -c "import huggingface_hub; print('huggingface_hub', huggingface_hub.__version__)"
 
       - name: Setup bake environment
@@ -56,8 +56,8 @@ jobs:
           chmod +x "$VENV_DIR/bin/python3"
           echo "Wrapper python: $("$VENV_DIR/bin/python3" --version)"
           "$VENV_DIR/bin/python3" -c "import huggingface_hub; print('OK:', huggingface_hub.__version__)"
-          huggingface-cli version
-          huggingface-cli login --token "$HF_TOKEN"
+          hf --version
+          hf auth login --token "$HF_TOKEN"
 
       - name: Login to GHCR
         uses: docker/login-action@v3
