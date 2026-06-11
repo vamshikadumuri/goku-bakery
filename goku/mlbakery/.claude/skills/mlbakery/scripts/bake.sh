@@ -1,22 +1,10 @@
 #!/bin/bash
 # bake.sh — Universal MLBakery script
-# Downloads a HF model one safetensor at a time, builds Docker images,
-# verifies contents, pushes to GHCR, and cleans up — maximally disk-efficient.
-# For ONNX models (no .safetensors) the full repo is downloaded at once
-# and baked into a single image.
-#
-# Examples:
-#   bash scripts/bake.sh -m Qwen/Qwen3.5-35B-A3B
-#   bash scripts/bake.sh -m istupakov/parakeet-tdt-0.6b-v2-onnx
-#   bash scripts/bake.sh -m Qwen/Qwen3.5-27B -s 5 \
-#     -e "model.safetensors-00001-*,model.safetensors-00002-*"
-#
-# Prerequisites:
-#   - pip install huggingface_hub hf_transfer
-#   - huggingface-cli login (or HF_TOKEN env var)
-#   - docker login ghcr.io
+# Uses huggingface_hub Python API directly (no huggingface-cli dependency).
+# For safetensors models: one shard = one image.
+# For ONNX models (no .safetensors): full repo download into a single image.
 
-set +e  # Handle errors per-shard
+set +e
 
 # ── Defaults ──────────────────────────────────────────────
 MODEL_REPO=""
@@ -29,21 +17,17 @@ VENV_PYTHON=""
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 
-# ── Usage ─────────────────────────────────────────────────
 print_usage() {
   echo "Usage: $0 -m MODEL_REPO [OPTIONS]"
-  echo ""
-  echo "Options:"
-  echo "  -m MODEL_REPO       HF model repo (e.g. Qwen/Qwen3.5-27B) [required]"
-  echo "  -t TAG_PREFIX       Image tag prefix (default: derived from model repo)"
-  echo "  -s START_SHARD      Starting shard number (default: 1)"
-  echo "  -u GHCR_USER        GHCR username (default: vamshikadumuri)"
-  echo "  -e EXCLUDE          Comma-separated HF download exclude patterns"
-  echo "  -v VENV_NAME        Venv directory name inside project dir (default: mymlbakeryenv)"
-  echo "  -h                  Show this help"
+  echo "  -m MODEL_REPO   HF model repo [required]"
+  echo "  -t TAG_PREFIX   Image tag prefix (default: derived from repo name)"
+  echo "  -s START_SHARD  Resume from shard N (default: 1)"
+  echo "  -u GHCR_USER    GHCR username (default: vamshikadumuri)"
+  echo "  -e EXCLUDE      Comma-separated exclude patterns"
+  echo "  -v VENV_NAME    Venv dir name inside project dir"
+  echo "  -h              Help"
 }
 
-# ── Parse args ────────────────────────────────────────────
 while [[ $# -gt 0 ]]; do
   case $1 in
     -m) MODEL_REPO="$2"; shift 2 ;;
@@ -71,72 +55,71 @@ MODEL_NAME=$(basename "$MODEL_REPO")
 WORK_DIR="$(pwd)/temp_$(date +%Y%m%d)_${MODEL_NAME}"
 MODEL_DIR="$WORK_DIR/models/$MODEL_NAME"
 
-export HF_HUB_ENABLE_HF_TRANSFER=1
-
-# Resolve python for API calls; always use the installed huggingface-cli for downloads
+# Resolve python interpreter (venv wrapper created by workflow, or system python3)
 if [[ -z "$VENV_PYTHON" ]]; then
   VENV_PYTHON="$PROJECT_DIR/mymlbakeryenv/bin/python3"
 fi
-
-if [[ -x "$VENV_PYTHON" ]]; then
-  echo "🐍 Using venv Python: $VENV_PYTHON"
-else
+if [[ ! -x "$VENV_PYTHON" ]]; then
   VENV_PYTHON="python3"
-  echo "🐍 Using system python3: $(which python3 2>/dev/null)"
 fi
-
-# Always use the installed huggingface-cli script for downloads
-HF_CLI="huggingface-cli"
-echo "🤗 huggingface-cli: $(which huggingface-cli 2>/dev/null || echo 'NOT FOUND')"
+echo "🐍 Python: $VENV_PYTHON ($($VENV_PYTHON --version 2>&1))"
 
 # ── Helpers ───────────────────────────────────────────────
 
 perm_rm() {
   for target in "$@"; do
-    if [[ -e "$target" ]]; then
-      if [[ -d "$target" ]]; then
-        find "$target" -type f -exec rm -f {} +
-        rm -rf "$target"
-      else
-        rm -f "$target"
-      fi
-    fi
+    [[ -d "$target" ]] && { find "$target" -type f -exec rm -f {} +; rm -rf "$target"; } || rm -f "$target"
   done
 }
 
+hf_download_repo() {
+  # Download entire repo (or with ignore patterns) using Python API
+  local REPO="$1" LOCAL_DIR="$2" IGNORE="$3"
+  REPO="$REPO" LOCAL_DIR="$LOCAL_DIR" IGNORE="$IGNORE" \
+  $VENV_PYTHON - <<'PYEOF'
+import os, sys
+from huggingface_hub import snapshot_download
+repo      = os.environ['REPO']
+local_dir = os.environ['LOCAL_DIR']
+ignore    = [p.strip() for p in os.environ['IGNORE'].split(',') if p.strip()] or None
+print(f'  Downloading repo {repo} -> {local_dir}' + (f'  (ignoring {ignore})' if ignore else ''))
+snapshot_download(repo, local_dir=local_dir, ignore_patterns=ignore)
+print('  Download complete')
+PYEOF
+}
+
+hf_download_file() {
+  # Download a single file from a repo using Python API
+  local REPO="$1" FILENAME="$2" LOCAL_DIR="$3"
+  REPO="$REPO" FILENAME="$FILENAME" LOCAL_DIR="$LOCAL_DIR" \
+  $VENV_PYTHON - <<'PYEOF'
+import os
+from huggingface_hub import hf_hub_download
+repo      = os.environ['REPO']
+filename  = os.environ['FILENAME']
+local_dir = os.environ['LOCAL_DIR']
+print(f'  Downloading {filename}')
+hf_hub_download(repo, filename=filename, local_dir=local_dir)
+print('  Download complete')
+PYEOF
+}
+
 verify_image_contents() {
-  local IMAGE_TAG=$1
-  local SHARD_DIR=$2
-
+  local IMAGE_TAG=$1 SHARD_DIR=$2
   echo "   🔍 Verifying image contents..."
-
   EXPECTED=$(cd "$SHARD_DIR" && find models/ -type f | sort)
-
-  VERIFY_OUTPUT=$(docker run --rm "$IMAGE_TAG" sh -c 'find /models/ -type f | sort; echo "===VERIFY_SEP==="; du -sh /models/' 2>/dev/null)
-
-  if [[ -z "$VERIFY_OUTPUT" ]]; then
-    echo "   ❌ Verification FAILED: could not read image contents"
-    return 1
-  fi
-
-  ACTUAL=$(echo "$VERIFY_OUTPUT" | sed '/===VERIFY_SEP===/,$d' | sed 's|^/||')
-  IMAGE_SIZE=$(echo "$VERIFY_OUTPUT" | sed -n '/===VERIFY_SEP===/,$ p' | tail -1 | cut -f1)
-
-  if [[ -z "$ACTUAL" ]]; then
-    echo "   ❌ Verification FAILED: no files found in image"
-    return 1
-  fi
-
+  VERIFY_OUTPUT=$(docker run --rm "$IMAGE_TAG" sh -c 'find /models/ -type f | sort; echo "===SEP==="; du -sh /models/' 2>/dev/null)
+  [[ -z "$VERIFY_OUTPUT" ]] && { echo "   ❌ Verification FAILED: could not read image"; return 1; }
+  ACTUAL=$(echo "$VERIFY_OUTPUT" | sed '/===SEP===/,$d' | sed 's|^/||')
+  IMAGE_SIZE=$(echo "$VERIFY_OUTPUT" | sed -n '/===SEP===/,$ p' | tail -1 | cut -f1)
+  [[ -z "$ACTUAL" ]] && { echo "   ❌ Verification FAILED: no files in image"; return 1; }
   DIFF=$(diff <(echo "$EXPECTED") <(echo "$ACTUAL"))
   if [[ -n "$DIFF" ]]; then
-    echo "   ❌ Verification FAILED: image contents don't match expected files"
-    echo "   Diff (< expected, > actual):"
+    echo "   ❌ Verification FAILED: contents mismatch"
     echo "$DIFF" | head -20
     return 1
   fi
-
-  FILE_COUNT=$(echo "$ACTUAL" | wc -l)
-  echo "   ✅ Verified: ${FILE_COUNT} files, ${IMAGE_SIZE} in /models/"
+  echo "   ✅ Verified: $(echo "$ACTUAL" | wc -l) files, ${IMAGE_SIZE} in /models/"
   return 0
 }
 
@@ -150,67 +133,46 @@ COPY datasets/ /datasets/
 '
 
 if ! docker info >/dev/null 2>&1; then
-  echo "❌ Docker is not available."
-  exit 1
+  echo "❌ Docker not available"; exit 1
 fi
 echo "🐳 Docker: OK"
 
 build_and_push_shard() {
-  local SHARD_NUM=$1
-  local TAG=$2
-  local SHARD_DIR=$3
-
+  local SHARD_NUM=$1 TAG=$2 SHARD_DIR=$3
   echo "   🔨 Building ${IMAGE_NAME}:${TAG}..."
   if ! docker build -t "${IMAGE_NAME}:${TAG}" "$SHARD_DIR"; then
-    echo "   ❌ Build FAILED for shard${SHARD_NUM}."
-    return 1
+    echo "   ❌ Build FAILED"; return 1
   fi
-
   if ! verify_image_contents "${IMAGE_NAME}:${TAG}" "$SHARD_DIR"; then
-    echo "   ❌ Content verification FAILED for shard${SHARD_NUM}. NOT pushing."
-    docker rmi "${IMAGE_NAME}:${TAG}" 2>/dev/null || true
-    return 1
+    echo "   ❌ Verification FAILED, not pushing"
+    docker rmi "${IMAGE_NAME}:${TAG}" 2>/dev/null || true; return 1
   fi
-
   echo "   🚀 Pushing ${IMAGE_NAME}:${TAG}..."
   local PUSH_OK=false
   for attempt in 1 2 3; do
-    if docker push "${IMAGE_NAME}:${TAG}" 2>&1; then
-      PUSH_OK=true
-      break
-    fi
-    echo "   ⚠️  Push attempt $attempt failed. Retrying in 5s..."
-    sleep 5
+    docker push "${IMAGE_NAME}:${TAG}" 2>&1 && { PUSH_OK=true; break; }
+    echo "   ⚠️ Push attempt $attempt failed. Retrying in 5s..."; sleep 5
   done
-
   if [[ "$PUSH_OK" != "true" ]]; then
-    echo "   ❌ Push FAILED for shard${SHARD_NUM} after 3 attempts."
-    docker rmi "${IMAGE_NAME}:${TAG}" 2>/dev/null || true
-    return 1
+    echo "   ❌ Push FAILED after 3 attempts"
+    docker rmi "${IMAGE_NAME}:${TAG}" 2>/dev/null || true; return 1
   fi
-
-  echo "   🗑️  Cleaning up shard${SHARD_NUM}..."
   perm_rm "$SHARD_DIR"
   docker rmi "${IMAGE_NAME}:${TAG}" 2>/dev/null || true
-  echo "   ✅ shard${SHARD_NUM} done!"
-  echo ""
+  echo "   ✅ Done!"; echo ""
   return 0
 }
 
-# ══════════════════════════════════════════════════════════
-#  Main
-# ══════════════════════════════════════════════════════════
-
+# ══ Main ══════════════════════════════════════════════════════
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "  MLBakery — Baking ${MODEL_REPO}"
-echo "  Tag prefix: ${TAG_PREFIX}"
-echo "  Start shard: ${START_SHARD}"
+echo "  Tag prefix: ${TAG_PREFIX}  |  Start shard: ${START_SHARD}"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
 mkdir -p "$MODEL_DIR"
 
-echo "📋 Listing model files from ${MODEL_REPO}..."
+# Build exclude list for Python
 EXCLUDE_PY_LIST=""
 if [[ -n "$EXCLUDE_PATTERNS" ]]; then
   IFS=',' read -ra EXCL_LIST <<< "$EXCLUDE_PATTERNS"
@@ -220,6 +182,7 @@ else
   EXCLUDE_PY_LIST="[]"
 fi
 
+echo "📋 Listing model files from ${MODEL_REPO}..."
 SAFETENSOR_LIST=$($VENV_PYTHON -c "
 from huggingface_hub import list_repo_files
 import fnmatch
@@ -231,80 +194,63 @@ for f in safetensors:
         print(f)
 " 2>/dev/null)
 
-# ── ONNX fallback: no safetensors → download full repo as single image ──
+# ── ONNX path: no safetensors → full-repo single image ───────────────────────
 if [[ -z "$SAFETENSOR_LIST" ]]; then
-  echo "   No .safetensors found — checking for ONNX files..."
+  echo "   No .safetensors found — checking for ONNX..."
   ONNX_COUNT=$($VENV_PYTHON -c "
 from huggingface_hub import list_repo_files
 files = list_repo_files('$MODEL_REPO')
 print(len([f for f in files if f.endswith('.onnx')]))
 " 2>/dev/null)
-
   if [[ -z "$ONNX_COUNT" || "$ONNX_COUNT" -eq 0 ]]; then
-    echo "❌ No .safetensors or .onnx files found in ${MODEL_REPO}. Check repo name and network."
+    echo "❌ No .safetensors or .onnx files found. Check repo name / network."
     exit 1
   fi
-
-  echo "   Found ${ONNX_COUNT} .onnx file(s) → baking full repo as single image: ${TAG_PREFIX}"
+  echo "   Found ${ONNX_COUNT} .onnx file(s) → single image: ${TAG_PREFIX}"
   echo ""
 
   TAG="${TAG_PREFIX}"
   SHARD_DIR="$WORK_DIR/shard1"
   SHARD_MODEL_DIR="$SHARD_DIR/models/$MODEL_NAME"
-  SHARD_DATASETS_DIR="$SHARD_DIR/datasets"
-
-  mkdir -p "$SHARD_MODEL_DIR"
-  mkdir -p "$SHARD_DATASETS_DIR"
+  mkdir -p "$SHARD_MODEL_DIR" "$SHARD_DIR/datasets"
   echo "$DOCKERFILE" > "$SHARD_DIR/Dockerfile"
 
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
   echo "📦 ${IMAGE_NAME}:${TAG} (ONNX — full repo)"
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-  echo "   ⬇️  Downloading full repo..."
-
-  DL_CMD="$HF_CLI download \"$MODEL_REPO\" --local-dir \"$SHARD_MODEL_DIR\""
-  if ! eval $DL_CMD; then
-    echo "❌ Full repo download failed. Aborting."
-    perm_rm "$WORK_DIR"
-    exit 1
+  if ! hf_download_repo "$MODEL_REPO" "$SHARD_MODEL_DIR" ""; then
+    echo "❌ Download failed"; perm_rm "$WORK_DIR"; exit 1
   fi
   rm -rf "$SHARD_MODEL_DIR/.huggingface" "$SHARD_MODEL_DIR/.cache"
 
   if ! build_and_push_shard "1" "$TAG" "$SHARD_DIR"; then
-    perm_rm "$WORK_DIR"
-    exit 1
+    perm_rm "$WORK_DIR"; exit 1
   fi
 
   perm_rm "$WORK_DIR"
   echo "🎉 Done!"
-  echo ""
-  echo "Pushed image:"
-  echo "  ${IMAGE_NAME}:${TAG}"
+  echo "Pushed: ${IMAGE_NAME}:${TAG}"
   exit 0
 fi
 
-# ── Safetensors path ──────────────────────────────────
+# ── Safetensors path ─────────────────────────────────────────────
 IFS=$'\n' read -rd '' -a SAFETENSORS <<< "$SAFETENSOR_LIST" || true
 TOTAL_FILES=${#SAFETENSORS[@]}
-END_SHARD=$((TOTAL_FILES))
 
 if [[ $TOTAL_FILES -eq 1 ]]; then
   IS_SINGLE=true
-  echo "   Found 1 safetensor file → single image: ${TAG_PREFIX}"
+  echo "   Found 1 safetensor → single image: ${TAG_PREFIX}"
 else
   IS_SINGLE=false
-  echo "   Found ${TOTAL_FILES} safetensor files → sharded: ${TAG_PREFIX}-shard1 through ${TAG_PREFIX}-shard${TOTAL_FILES}"
+  echo "   Found ${TOTAL_FILES} safetensors → sharded: ${TAG_PREFIX}-shard1..${TOTAL_FILES}"
 fi
-if [[ $START_SHARD -gt 1 ]]; then
-  echo "   Skipping shards 1-$((START_SHARD - 1)) (already on GHCR)"
-fi
+[[ $START_SHARD -gt 1 ]] && echo "   Resuming from shard ${START_SHARD}"
 echo ""
 
+# Download metadata (all non-safetensors files)
 echo "📁 Downloading metadata files..."
-METADATA_CMD="$HF_CLI download \"$MODEL_REPO\" --local-dir \"$MODEL_DIR\" --exclude \"*.safetensors\""
-if ! eval $METADATA_CMD; then
-  echo "❌ Metadata download failed. Aborting."
-  exit 1
+if ! hf_download_repo "$MODEL_REPO" "$MODEL_DIR" "*.safetensors"; then
+  echo "❌ Metadata download failed"; exit 1
 fi
 rm -rf "$MODEL_DIR/.huggingface" "$MODEL_DIR/.cache"
 
@@ -319,47 +265,30 @@ FAILED_SHARDS=()
 
 for i in $(seq 0 $((TOTAL_FILES - 1))); do
   SHARD_NUM=$((i + 1))
-
-  if [[ $SHARD_NUM -lt $START_SHARD ]]; then
-    continue
-  fi
+  [[ $SHARD_NUM -lt $START_SHARD ]] && continue
 
   FNAME="${SAFETENSORS[$i]}"
-
-  if [[ "$IS_SINGLE" == "true" ]]; then
-    TAG="${TAG_PREFIX}"
-  else
-    TAG="${TAG_PREFIX}-shard${SHARD_NUM}"
-  fi
+  TAG=$([[ "$IS_SINGLE" == "true" ]] && echo "${TAG_PREFIX}" || echo "${TAG_PREFIX}-shard${SHARD_NUM}")
 
   SHARD_DIR="$WORK_DIR/shard${SHARD_NUM}"
   SHARD_MODEL_DIR="$SHARD_DIR/models/$MODEL_NAME"
-  SHARD_DATASETS_DIR="$SHARD_DIR/datasets"
 
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-  if [[ "$IS_SINGLE" == "true" ]]; then
-    echo "📦 ${IMAGE_NAME}:${TAG}"
-  else
-    echo "📦 Shard ${SHARD_NUM}/${END_SHARD}: ${IMAGE_NAME}:${TAG}"
-  fi
+  [[ "$IS_SINGLE" == "true" ]] && echo "📦 ${IMAGE_NAME}:${TAG}" || echo "📦 Shard ${SHARD_NUM}/${TOTAL_FILES}: ${IMAGE_NAME}:${TAG}"
   echo "   File: ${FNAME}"
   echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-  mkdir -p "$SHARD_MODEL_DIR"
-  mkdir -p "$SHARD_DATASETS_DIR"
+  mkdir -p "$SHARD_MODEL_DIR" "$SHARD_DIR/datasets"
   echo "$DOCKERFILE" > "$SHARD_DIR/Dockerfile"
 
   if [[ $SHARD_NUM -eq 1 ]]; then
-    echo "   📁 Copying metadata files..."
-    for mf in "${METADATA[@]}"; do
-      cp -r "$MODEL_DIR/$mf" "$SHARD_MODEL_DIR/"
-    done
+    echo "   📁 Copying metadata..."
+    for mf in "${METADATA[@]}"; do cp -r "$MODEL_DIR/$mf" "$SHARD_MODEL_DIR/"; done
   fi
 
   echo "   ⬇️  Downloading ${FNAME}..."
-  DL_CMD="$HF_CLI download \"$MODEL_REPO\" \"$FNAME\" --local-dir \"$SHARD_MODEL_DIR\""
-  if ! eval $DL_CMD; then
-    echo "   ❌ Download FAILED for ${FNAME}. Skipping shard${SHARD_NUM}."
+  if ! hf_download_file "$MODEL_REPO" "$FNAME" "$SHARD_MODEL_DIR"; then
+    echo "   ❌ Download FAILED for ${FNAME}"
     FAILED_SHARDS+=("shard${SHARD_NUM}")
     perm_rm "$SHARD_DIR"
     continue
@@ -371,50 +300,16 @@ for i in $(seq 0 $((TOTAL_FILES - 1))); do
   fi
 done
 
+# ── Summary ───────────────────────────────────────────────
 if [[ ${#FAILED_SHARDS[@]} -eq 0 ]]; then
-  echo "🗑️  Cleaning up working directory..."
   perm_rm "$WORK_DIR"
-else
-  echo "⚠️  Keeping working directory for retry: $WORK_DIR"
-fi
-
-echo ""
-if [[ ${#FAILED_SHARDS[@]} -gt 0 ]]; then
-  echo "⚠️  Completed with ${#FAILED_SHARDS[@]} failure(s): ${FAILED_SHARDS[*]}"
-  echo ""
-  echo "Image status:"
-  for i in $(seq 1 $END_SHARD); do
-    sname="shard${i}"
-    if [[ "$IS_SINGLE" == "true" ]]; then
-      DISPLAY_TAG="${TAG_PREFIX}"
-    else
-      DISPLAY_TAG="${TAG_PREFIX}-shard${i}"
-    fi
-    if [[ $i -lt $START_SHARD ]]; then
-      echo "  ✅ ${IMAGE_NAME}:${DISPLAY_TAG} (previously pushed)"
-    elif [[ " ${FAILED_SHARDS[*]} " =~ " ${sname} " ]]; then
-      echo "  ❌ ${IMAGE_NAME}:${DISPLAY_TAG} (FAILED)"
-    else
-      echo "  ✅ ${IMAGE_NAME}:${DISPLAY_TAG}"
-    fi
-  done
-  exit 1
-else
   echo "🎉 All done!"
-  echo ""
   echo "Pushed images:"
-  for i in $(seq $START_SHARD $END_SHARD); do
-    if [[ "$IS_SINGLE" == "true" ]]; then
-      echo "  ${IMAGE_NAME}:${TAG_PREFIX}"
-    else
-      echo "  ${IMAGE_NAME}:${TAG_PREFIX}-shard${i}"
-    fi
+  for i in $(seq $START_SHARD $TOTAL_FILES); do
+    [[ "$IS_SINGLE" == "true" ]] && echo "  ${IMAGE_NAME}:${TAG_PREFIX}" || echo "  ${IMAGE_NAME}:${TAG_PREFIX}-shard${i}"
   done
-  if [[ $START_SHARD -gt 1 ]]; then
-    echo ""
-    echo "Previously pushed (shards 1-$((START_SHARD - 1))):"
-    for i in $(seq 1 $((START_SHARD - 1))); do
-      echo "  ${IMAGE_NAME}:${TAG_PREFIX}-shard${i}"
-    done
-  fi
+else
+  echo "⚠️  Keeping work dir for retry: $WORK_DIR"
+  echo "⚠️  Failed: ${FAILED_SHARDS[*]}"
+  exit 1
 fi
