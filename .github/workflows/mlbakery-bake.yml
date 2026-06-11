@@ -56,7 +56,7 @@ jobs:
           chmod +x "$VENV_DIR/bin/python3"
           echo "Wrapper python: $("$VENV_DIR/bin/python3" --version)"
           "$VENV_DIR/bin/python3" -c "import huggingface_hub; print('OK:', huggingface_hub.__version__)"
-          "$VENV_DIR/bin/python3" -m huggingface_hub.commands.huggingface_cli version
+          huggingface-cli version
           huggingface-cli login --token "$HF_TOKEN"
 
       - name: Login to GHCR
@@ -112,7 +112,6 @@ jobs:
           if [ -f /tmp/bake.log ]; then
             echo "=== Last 200 lines of bake.log ==="
             tail -200 /tmp/bake.log
-            # Also upload as a file to the repo for debugging
             CONTENT=$(base64 -w 0 /tmp/bake.log | head -c 60000)
             TIMESTAMP=$(date +%Y%m%d_%H%M%S)
             curl -s -X PUT \
