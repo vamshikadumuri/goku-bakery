@@ -2,10 +2,15 @@
 # bake.sh — Universal MLBakery script
 # Downloads a HF model one safetensor at a time, builds Docker images,
 # verifies contents, pushes to GHCR, and cleans up — maximally disk-efficient.
+# For ONNX models (no .safetensors) the full repo is downloaded at once
+# and baked into a single image.
 #
 # Examples:
-#   # Bake a model (all shards)
+#   # Bake a safetensors model (all shards)
 #   bash scripts/bake.sh -m Qwen/Qwen3.5-35B-A3B
+#
+#   # Bake an ONNX model (single image, full-repo download)
+#   bash scripts/bake.sh -m istupakov/parakeet-tdt-0.6b-v2-onnx
 #
 #   # Resume from shard 5 (skip safetensors 1-4)
 #   bash scripts/bake.sh -m Qwen/Qwen3.5-27B -s 5 \
@@ -227,6 +232,7 @@ build_and_push_shard() {
 
 # ══════════════════════════════════════════════════════════
 #  Main flow: download one safetensor at a time
+#  (or full-repo for ONNX models)
 # ══════════════════════════════════════════════════════════
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -238,8 +244,8 @@ echo ""
 
 mkdir -p "$MODEL_DIR"
 
-# List safetensor files from HF repo via Python API
-echo "📋 Listing safetensor files from ${MODEL_REPO}..."
+# List model files from HF repo via Python API
+echo "📋 Listing model files from ${MODEL_REPO}..."
 EXCLUDE_PY_LIST=""
 if [[ -n "$EXCLUDE_PATTERNS" ]]; then
   IFS=',' read -ra EXCL_LIST <<< "$EXCLUDE_PATTERNS"
@@ -260,11 +266,59 @@ for f in safetensors:
         print(f)
 " 2>/dev/null)
 
+# ── ONNX fallback: no safetensors → download full repo as single image ──
 if [[ -z "$SAFETENSOR_LIST" ]]; then
-  echo "❌ Could not list safetensor files. Check model repo and network."
-  exit 1
+  echo "   No .safetensors found — checking for ONNX files..."
+  ONNX_COUNT=$($VENV_PYTHON -c "
+from huggingface_hub import list_repo_files
+files = list_repo_files('$MODEL_REPO')
+print(len([f for f in files if f.endswith('.onnx')]))
+" 2>/dev/null)
+
+  if [[ -z "$ONNX_COUNT" || "$ONNX_COUNT" -eq 0 ]]; then
+    echo "❌ No .safetensors or .onnx files found in ${MODEL_REPO}. Check repo name and network."
+    exit 1
+  fi
+
+  echo "   Found ${ONNX_COUNT} .onnx file(s) → baking full repo as single image: ${TAG_PREFIX}"
+  echo ""
+
+  TAG="${TAG_PREFIX}"
+  SHARD_DIR="$WORK_DIR/shard1"
+  SHARD_MODEL_DIR="$SHARD_DIR/models/$MODEL_NAME"
+  SHARD_DATASETS_DIR="$SHARD_DIR/datasets"
+
+  mkdir -p "$SHARD_MODEL_DIR"
+  mkdir -p "$SHARD_DATASETS_DIR"
+  echo "$DOCKERFILE" > "$SHARD_DIR/Dockerfile"
+
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo "📦 ${IMAGE_NAME}:${TAG} (ONNX — full repo)"
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo "   ⬇️  Downloading full repo..."
+
+  DL_CMD="$HF_CLI download \"$MODEL_REPO\" --local-dir \"$SHARD_MODEL_DIR\""
+  if ! eval $DL_CMD; then
+    echo "❌ Full repo download failed. Aborting."
+    perm_rm "$WORK_DIR"
+    exit 1
+  fi
+  rm -rf "$SHARD_MODEL_DIR/.huggingface" "$SHARD_MODEL_DIR/.cache"
+
+  if ! build_and_push_shard "1" "$TAG" "$SHARD_DIR"; then
+    perm_rm "$WORK_DIR"
+    exit 1
+  fi
+
+  perm_rm "$WORK_DIR"
+  echo "🎉 Done!"
+  echo ""
+  echo "Pushed image:"
+  echo "  ${IMAGE_NAME}:${TAG}"
+  exit 0
 fi
 
+# ── Safetensors path (original shard-per-file logic) ─────
 IFS=$'\n' read -rd '' -a SAFETENSORS <<< "$SAFETENSOR_LIST" || true
 TOTAL_FILES=${#SAFETENSORS[@]}
 END_SHARD=$((TOTAL_FILES))
