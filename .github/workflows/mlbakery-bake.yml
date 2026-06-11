@@ -42,7 +42,6 @@ jobs:
         run: |
           pip install huggingface_hub hf_transfer
           echo "Python: $(python3 --version) at $(which python3)"
-          echo "HF CLI: $(which huggingface-cli || echo 'NOT FOUND')"
           python3 -c "import huggingface_hub; print('huggingface_hub', huggingface_hub.__version__)"
 
       - name: Setup bake environment
@@ -54,10 +53,14 @@ jobs:
           REAL_PYTHON="$(which python3)"
           printf '#!/bin/bash\nexec %s "$@"\n' "$REAL_PYTHON" > "$VENV_DIR/bin/python3"
           chmod +x "$VENV_DIR/bin/python3"
-          echo "Wrapper python: $("$VENV_DIR/bin/python3" --version)"
-          "$VENV_DIR/bin/python3" -c "import huggingface_hub; print('OK:', huggingface_hub.__version__)"
-          huggingface-cli version
-          huggingface-cli login --token "$HF_TOKEN"
+          echo "Wrapper python: $(\"$VENV_DIR/bin/python3\" --version)"
+          python3 -c "import huggingface_hub; print('OK:', huggingface_hub.__version__)"
+          python3 -c "
+import os
+from huggingface_hub import login
+login(token=os.environ['HF_TOKEN'])
+print('HF login OK')
+"
 
       - name: Login to GHCR
         uses: docker/login-action@v3
@@ -78,20 +81,18 @@ jobs:
           docker info 2>&1 | head -3
           echo "Test list_repo_files:"
           python3 -c "
-          from huggingface_hub import list_repo_files
-          files = list(list_repo_files('${{ inputs.model_repo }}'))
-          safetensors = [f for f in files if f.endswith('.safetensors')]
-          print(f'Total files: {len(files)}, safetensors: {len(safetensors)}')
-          for f in safetensors[:3]:
-              print(f'  {f}')
-          "
+from huggingface_hub import list_repo_files
+files = list(list_repo_files('${{ inputs.model_repo }}'))
+safetensors = [f for f in files if f.endswith('.safetensors')]
+onnx = [f for f in files if f.endswith('.onnx')]
+print(f'Total files: {len(files)}, safetensors: {len(safetensors)}, onnx: {len(onnx)}')
+"
 
       - name: Run bake
         id: bake
         continue-on-error: true
         working-directory: goku/mlbakery
         env:
-          HF_HUB_ENABLE_HF_TRANSFER: '1'
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
           ARGS="-m ${{ inputs.model_repo }}"
