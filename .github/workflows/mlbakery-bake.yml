@@ -53,14 +53,10 @@ jobs:
           REAL_PYTHON="$(which python3)"
           printf '#!/bin/bash\nexec %s "$@"\n' "$REAL_PYTHON" > "$VENV_DIR/bin/python3"
           chmod +x "$VENV_DIR/bin/python3"
-          echo "Wrapper python: $(\"$VENV_DIR/bin/python3\" --version)"
+          WRAPPER_VER=$("$VENV_DIR/bin/python3" --version 2>&1)
+          echo "Wrapper python: $WRAPPER_VER"
           python3 -c "import huggingface_hub; print('OK:', huggingface_hub.__version__)"
-          python3 -c "
-import os
-from huggingface_hub import login
-login(token=os.environ['HF_TOKEN'])
-print('HF login OK')
-"
+          python3 -c "import os; from huggingface_hub import login; login(token=os.environ['HF_TOKEN']); print('HF login OK')"
 
       - name: Login to GHCR
         uses: docker/login-action@v3
@@ -80,13 +76,7 @@ print('HF login OK')
           echo "Docker:"
           docker info 2>&1 | head -3
           echo "Test list_repo_files:"
-          python3 -c "
-from huggingface_hub import list_repo_files
-files = list(list_repo_files('${{ inputs.model_repo }}'))
-safetensors = [f for f in files if f.endswith('.safetensors')]
-onnx = [f for f in files if f.endswith('.onnx')]
-print(f'Total files: {len(files)}, safetensors: {len(safetensors)}, onnx: {len(onnx)}')
-"
+          python3 -c "from huggingface_hub import list_repo_files; files=list(list_repo_files('${{ inputs.model_repo }}')); st=[f for f in files if f.endswith('.safetensors')]; ox=[f for f in files if f.endswith('.onnx')]; print(f'Total: {len(files)} safetensors: {len(st)} onnx: {len(ox)}')"
 
       - name: Run bake
         id: bake
