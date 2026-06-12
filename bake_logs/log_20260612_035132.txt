@@ -1,0 +1,540 @@
+🐍 Python: /home/runner/work/goku-bakery/goku-bakery/goku/mlbakery/.claude/skills/mlbakery/mymlbakeryenv/bin/python3 (Python 3.12.3)
+🐳 Docker: OK
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  MLBakery — Baking Qwen/Qwen2.5-Coder-32B
+  Tag prefix: Qwen-Qwen2.5-Coder-32B  |  Start shard: 1
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 Listing model files from Qwen/Qwen2.5-Coder-32B...
+   Found 14 safetensors → sharded: Qwen-Qwen2.5-Coder-32B-shard1..14
+
+📁 Downloading metadata files...
+  Downloading repo Qwen/Qwen2.5-Coder-32B -> /home/runner/work/goku-bakery/goku-bakery/goku/mlbakery/temp_20260612_Qwen2.5-Coder-32B/models/Qwen2.5-Coder-32B  (ignoring ['*.safetensors'])
+Fetching 10 files:   0%|          | 0/10 [00:00<?, ?it/s]Fetching 10 files:  10%|█         | 1/10 [00:00<00:02,  3.15it/s]Fetching 10 files:  40%|████      | 4/10 [00:00<00:00,  9.93it/s]Fetching 10 files:  80%|████████  | 8/10 [00:00<00:00, 12.72it/s]Fetching 10 files: 100%|██████████| 10/10 [00:00<00:00, 13.37it/s]
+  Download complete
+   Downloaded 9 metadata entries
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Shard 1/14: ghcr.io/vamshikadumuri/mlbakery:Qwen-Qwen2.5-Coder-32B-shard1
+   File: model-00001-of-00014.safetensors
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   📁 Copying metadata...
+   ⬇️  Downloading model-00001-of-00014.safetensors...
+  Downloading model-00001-of-00014.safetensors
+  Download complete
+   🔨 Building ghcr.io/vamshikadumuri/mlbakery:Qwen-Qwen2.5-Coder-32B-shard1...
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 238B 0.0s done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/ubuntu:latest
+#2 ...
+
+#3 [auth] library/ubuntu:pull token for registry-1.docker.io
+#3 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/ubuntu:latest
+#2 DONE 0.9s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 2B done
+#4 DONE 0.0s
+
+#5 [1/7] FROM docker.io/library/ubuntu:latest@sha256:f3d28607ddd78734bb7f71f117f3c6706c666b8b76cbff7c9ff6e5718d46ff64
+#5 resolve docker.io/library/ubuntu:latest@sha256:f3d28607ddd78734bb7f71f117f3c6706c666b8b76cbff7c9ff6e5718d46ff64 done
+#5 sha256:d31acef2a964b6df1f2b7e20a1525c4f2378024e087a4f8a8a9a4247e6a79573 1.39kB / 1.39kB done
+#5 sha256:30ba44506a6d003153c80023c4474e67d3487e9178df254bde55b19209cc8683 4.38kB / 4.38kB done
+#5 sha256:6f5c5aa4e145204b113f983c003ff8ad6489394294ef95ec030bc94e3daded54 3.15MB / 41.55MB 0.1s
+#5 sha256:1c24335ddd46023ff99bd665bd8ea6798464f7bbf501718edcf2eb4696e5f408 0B / 387B 0.1s
+#5 sha256:f3d28607ddd78734bb7f71f117f3c6706c666b8b76cbff7c9ff6e5718d46ff64 6.69kB / 6.69kB done
+#5 sha256:6f5c5aa4e145204b113f983c003ff8ad6489394294ef95ec030bc94e3daded54 41.55MB / 41.55MB 0.2s done
+#5 sha256:1c24335ddd46023ff99bd665bd8ea6798464f7bbf501718edcf2eb4696e5f408 387B / 387B 0.2s done
+#5 extracting sha256:6f5c5aa4e145204b113f983c003ff8ad6489394294ef95ec030bc94e3daded54 0.1s
+#5 extracting sha256:6f5c5aa4e145204b113f983c003ff8ad6489394294ef95ec030bc94e3daded54 3.8s done
+#5 extracting sha256:1c24335ddd46023ff99bd665bd8ea6798464f7bbf501718edcf2eb4696e5f408 done
+#5 ...
+
+#6 [internal] load build context
+#6 transferring context: 2.71GB 7.4s
+#6 ...
+
+#5 [1/7] FROM docker.io/library/ubuntu:latest@sha256:f3d28607ddd78734bb7f71f117f3c6706c666b8b76cbff7c9ff6e5718d46ff64
+#5 DONE 12.5s
+
+#6 [internal] load build context
+#6 transferring context: 4.77GB 12.5s
+#6 transferring context: 4.90GB 12.9s done
+#6 DONE 12.9s
+
+#7 [2/7] RUN apt-get update && apt-get install -y g++
+#7 0.511 Get:1 http://archive.ubuntu.com/ubuntu resolute InRelease [136 kB]
+#7 0.515 Get:2 http://security.ubuntu.com/ubuntu resolute-security InRelease [137 kB]
+#7 0.981 Get:3 http://security.ubuntu.com/ubuntu resolute-security/universe amd64 Packages [134 kB]
+#7 0.997 Get:4 http://security.ubuntu.com/ubuntu resolute-security/restricted amd64 Packages [250 kB]
+#7 1.005 Get:5 http://security.ubuntu.com/ubuntu resolute-security/main amd64 Packages [248 kB]
+#7 1.136 Get:6 http://archive.ubuntu.com/ubuntu resolute-updates InRelease [137 kB]
+#7 1.381 Get:7 http://archive.ubuntu.com/ubuntu resolute-backports InRelease [136 kB]
+#7 1.467 Get:8 http://archive.ubuntu.com/ubuntu resolute/restricted amd64 Packages [189 kB]
+#7 1.474 Get:9 http://archive.ubuntu.com/ubuntu resolute/multiverse amd64 Packages [352 kB]
+#7 1.479 Get:10 http://archive.ubuntu.com/ubuntu resolute/universe amd64 Packages [20.1 MB]
+#7 1.566 Get:11 http://archive.ubuntu.com/ubuntu resolute/main amd64 Packages [1874 kB]
+#7 1.577 Get:12 http://archive.ubuntu.com/ubuntu resolute-updates/restricted amd64 Packages [250 kB]
+#7 1.581 Get:13 http://archive.ubuntu.com/ubuntu resolute-updates/universe amd64 Packages [147 kB]
+#7 1.585 Get:14 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 Packages [262 kB]
+#7 1.591 Get:15 http://archive.ubuntu.com/ubuntu resolute-updates/multiverse amd64 Packages [3584 B]
+#7 2.251 Fetched 24.4 MB in 2s (12.0 MB/s)
+#7 2.251 Reading package lists...
+#7 2.801 Reading package lists...
+#7 3.353 Building dependency tree...
+#7 3.477 Reading state information...
+#7 3.497 Solving dependencies...
+#7 3.605 The following additional packages will be installed:
+#7 3.605   binutils binutils-common binutils-x86-64-linux-gnu cpp cpp-15
+#7 3.605   cpp-15-x86-64-linux-gnu cpp-x86-64-linux-gnu g++-15 g++-15-x86-64-linux-gnu
+#7 3.605   g++-x86-64-linux-gnu gcc gcc-15 gcc-15-base gcc-15-x86-64-linux-gnu
+#7 3.605   gcc-x86-64-linux-gnu libasan8 libatomic1 libbinutils libc-dev-bin libc6-dev
+#7 3.606   libcc1-0 libctf-nobfd0 libctf0 libgcc-15-dev libgomp1 libgprofng0 libhwasan0
+#7 3.606   libisl23 libitm1 libjansson4 liblsan0 libmpc3 libmpfr6 libquadmath0
+#7 3.606   libsframe3 libstdc++-15-dev libtsan2 libubsan1 linux-libc-dev manpages
+#7 3.607   manpages-dev rpcsvc-proto
+#7 3.607 Suggested packages:
+#7 3.607   binutils-doc gprofng-gui binutils-gold cpp-doc gcc-15-locales cpp-15-doc
+#7 3.607   g++-multilib g++-15-multilib gcc-15-doc gcc-multilib make autoconf automake
+#7 3.607   libtool flex bison gdb gcc-doc gcc-15-multilib gdb-x86-64-linux-gnu
+#7 3.607   libc-devtools glibc-doc libstdc++-15-doc man-browser
+#7 3.644 The following NEW packages will be installed:
+#7 3.644   binutils binutils-common binutils-x86-64-linux-gnu cpp cpp-15
+#7 3.644   cpp-15-x86-64-linux-gnu cpp-x86-64-linux-gnu g++ g++-15
+#7 3.644   g++-15-x86-64-linux-gnu g++-x86-64-linux-gnu gcc gcc-15 gcc-15-base
+#7 3.644   gcc-15-x86-64-linux-gnu gcc-x86-64-linux-gnu libasan8 libatomic1 libbinutils
+#7 3.644   libc-dev-bin libc6-dev libcc1-0 libctf-nobfd0 libctf0 libgcc-15-dev libgomp1
+#7 3.645   libgprofng0 libhwasan0 libisl23 libitm1 libjansson4 liblsan0 libmpc3
+#7 3.645   libmpfr6 libquadmath0 libsframe3 libstdc++-15-dev libtsan2 libubsan1
+#7 3.645   linux-libc-dev manpages manpages-dev rpcsvc-proto
+#7 3.818 0 upgraded, 43 newly installed, 0 to remove and 5 not upgraded.
+#7 3.818 Need to get 82.0 MB of archives.
+#7 3.818 After this operation, 287 MB of additional disk space will be used.
+#7 3.818 Get:1 http://archive.ubuntu.com/ubuntu resolute/main amd64 libatomic1 amd64 16-20260322-1ubuntu1 [11.4 kB]
+#7 3.830 Get:2 http://archive.ubuntu.com/ubuntu resolute/main amd64 libjansson4 amd64 2.14-2build4 [33.2 kB]
+#7 3.840 Get:3 http://archive.ubuntu.com/ubuntu resolute/main amd64 manpages all 6.17-1 [1380 kB]
+#7 3.860 Get:4 http://archive.ubuntu.com/ubuntu resolute/main amd64 libsframe3 amd64 2.46-3ubuntu2 [20.6 kB]
+#7 3.870 Get:5 http://archive.ubuntu.com/ubuntu resolute/main amd64 binutils-common amd64 2.46-3ubuntu2 [222 kB]
+#7 3.879 Get:6 http://archive.ubuntu.com/ubuntu resolute/main amd64 libbinutils amd64 2.46-3ubuntu2 [602 kB]
+#7 3.893 Get:7 http://archive.ubuntu.com/ubuntu resolute/main amd64 libgprofng0 amd64 2.46-3ubuntu2 [898 kB]
+#7 3.906 Get:8 http://archive.ubuntu.com/ubuntu resolute/main amd64 libctf-nobfd0 amd64 2.46-3ubuntu2 [102 kB]
+#7 3.915 Get:9 http://archive.ubuntu.com/ubuntu resolute/main amd64 libctf0 amd64 2.46-3ubuntu2 [100 kB]
+#7 3.925 Get:10 http://archive.ubuntu.com/ubuntu resolute/main amd64 binutils-x86-64-linux-gnu amd64 2.46-3ubuntu2 [1150 kB]
+#7 3.939 Get:11 http://archive.ubuntu.com/ubuntu resolute/main amd64 binutils amd64 2.46-3ubuntu2 [225 kB]
+#7 3.949 Get:12 http://archive.ubuntu.com/ubuntu resolute/main amd64 gcc-15-base amd64 15.2.0-16ubuntu1 [39.0 kB]
+#7 3.958 Get:13 http://archive.ubuntu.com/ubuntu resolute/main amd64 libisl23 amd64 0.27-1build1 [691 kB]
+#7 3.973 Get:14 http://archive.ubuntu.com/ubuntu resolute/main amd64 libmpfr6 amd64 4.2.2-3 [361 kB]
+#7 3.984 Get:15 http://archive.ubuntu.com/ubuntu resolute/main amd64 libmpc3 amd64 1.3.1-3 [54.6 kB]
+#7 3.993 Get:16 http://archive.ubuntu.com/ubuntu resolute/main amd64 cpp-15-x86-64-linux-gnu amd64 15.2.0-16ubuntu1 [12.9 MB]
+#7 4.072 Get:17 http://archive.ubuntu.com/ubuntu resolute/main amd64 cpp-15 amd64 15.2.0-16ubuntu1 [1030 B]
+#7 4.086 Get:18 http://archive.ubuntu.com/ubuntu resolute/main amd64 cpp-x86-64-linux-gnu amd64 4:15.2.0-5ubuntu1 [5840 B]
+#7 4.096 Get:19 http://archive.ubuntu.com/ubuntu resolute/main amd64 cpp amd64 4:15.2.0-5ubuntu1 [22.4 kB]
+#7 4.107 Get:20 http://archive.ubuntu.com/ubuntu resolute/main amd64 libcc1-0 amd64 16-20260322-1ubuntu1 [51.2 kB]
+#7 4.117 Get:21 http://archive.ubuntu.com/ubuntu resolute/main amd64 libgomp1 amd64 16-20260322-1ubuntu1 [162 kB]
+#7 4.126 Get:22 http://archive.ubuntu.com/ubuntu resolute/main amd64 libitm1 amd64 16-20260322-1ubuntu1 [30.0 kB]
+#7 4.138 Get:23 http://archive.ubuntu.com/ubuntu resolute/main amd64 libasan8 amd64 16-20260322-1ubuntu1 [3184 kB]
+#7 4.162 Get:24 http://archive.ubuntu.com/ubuntu resolute/main amd64 liblsan0 amd64 16-20260322-1ubuntu1 [1394 kB]
+#7 4.176 Get:25 http://archive.ubuntu.com/ubuntu resolute/main amd64 libtsan2 amd64 16-20260322-1ubuntu1 [2849 kB]
+#7 4.196 Get:26 http://archive.ubuntu.com/ubuntu resolute/main amd64 libubsan1 amd64 16-20260322-1ubuntu1 [1240 kB]
+#7 4.210 Get:27 http://archive.ubuntu.com/ubuntu resolute/main amd64 libhwasan0 amd64 16-20260322-1ubuntu1 [1731 kB]
+#7 4.225 Get:28 http://archive.ubuntu.com/ubuntu resolute/main amd64 libquadmath0 amd64 16-20260322-1ubuntu1 [155 kB]
+#7 4.239 Get:29 http://archive.ubuntu.com/ubuntu resolute/main amd64 libgcc-15-dev amd64 15.2.0-16ubuntu1 [2866 kB]
+#7 4.262 Get:30 http://archive.ubuntu.com/ubuntu resolute/main amd64 gcc-15-x86-64-linux-gnu amd64 15.2.0-16ubuntu1 [25.4 MB]
+#7 4.410 Get:31 http://archive.ubuntu.com/ubuntu resolute/main amd64 gcc-15 amd64 15.2.0-16ubuntu1 [539 kB]
+#7 4.422 Get:32 http://archive.ubuntu.com/ubuntu resolute/main amd64 gcc-x86-64-linux-gnu amd64 4:15.2.0-5ubuntu1 [1208 B]
+#7 4.431 Get:33 http://archive.ubuntu.com/ubuntu resolute/main amd64 gcc amd64 4:15.2.0-5ubuntu1 [5010 B]
+#7 4.441 Get:34 http://archive.ubuntu.com/ubuntu resolute/main amd64 libc-dev-bin amd64 2.43-2ubuntu2 [23.3 kB]
+#7 4.450 Get:35 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 linux-libc-dev amd64 7.0.0-22.22 [1548 kB]
+#7 4.464 Get:36 http://archive.ubuntu.com/ubuntu resolute/main amd64 rpcsvc-proto amd64 1.4.3-1build1 [68.3 kB]
+#7 4.473 Get:37 http://archive.ubuntu.com/ubuntu resolute/main amd64 libc6-dev amd64 2.43-2ubuntu2 [2295 kB]
+#7 4.490 Get:38 http://archive.ubuntu.com/ubuntu resolute/main amd64 libstdc++-15-dev amd64 15.2.0-16ubuntu1 [2920 kB]
+#7 4.510 Get:39 http://archive.ubuntu.com/ubuntu resolute/main amd64 g++-15-x86-64-linux-gnu amd64 15.2.0-16ubuntu1 [14.4 MB]
+#7 4.595 Get:40 http://archive.ubuntu.com/ubuntu resolute/main amd64 g++-15 amd64 15.2.0-16ubuntu1 [26.7 kB]
+#7 4.604 Get:41 http://archive.ubuntu.com/ubuntu resolute/main amd64 g++-x86-64-linux-gnu amd64 4:15.2.0-5ubuntu1 [968 B]
+#7 4.613 Get:42 http://archive.ubuntu.com/ubuntu resolute/main amd64 g++ amd64 4:15.2.0-5ubuntu1 [1100 B]
+#7 4.622 Get:43 http://archive.ubuntu.com/ubuntu resolute/main amd64 manpages-dev all 6.17-1 [2183 kB]
+#7 4.735 debconf: unable to initialize frontend: Dialog
+#7 4.735 debconf: (TERM is not set, so the dialog frontend is not usable.)
+#7 4.735 debconf: falling back to frontend: Readline
+#7 4.735 debconf: unable to initialize frontend: Readline
+#7 4.735 debconf: (Can't locate Term/ReadLine.pm in @INC (you may need to install the Term::ReadLine module) (@INC entries checked: /etc/perl /usr/local/lib/x86_64-linux-gnu/perl/5.40.1 /usr/local/share/perl/5.40.1 /usr/lib/x86_64-linux-gnu/perl5/5.40 /usr/share/perl5 /usr/lib/x86_64-linux-gnu/perl-base /usr/lib/x86_64-linux-gnu/perl/5.40 /usr/share/perl/5.40 /usr/local/lib/site_perl) at /usr/share/perl5/Debconf/FrontEnd/Readline.pm line 8, <STDIN> line 43.)
+#7 4.735 debconf: falling back to frontend: Teletype
+#7 4.742 debconf: unable to initialize frontend: Teletype
+#7 4.742 debconf: (This frontend requires a controlling tty.)
+#7 4.742 debconf: falling back to frontend: Noninteractive
+#7 5.830 Fetched 82.0 MB in 1s (83.8 MB/s)
+#7 5.843 Selecting previously unselected package libatomic1:amd64.
+#7 5.843 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 7724 files and directories currently installed.)
+#7 5.849 Preparing to unpack .../00-libatomic1_16-20260322-1ubuntu1_amd64.deb ...
+#7 5.851 Unpacking libatomic1:amd64 (16-20260322-1ubuntu1) ...
+#7 5.865 Selecting previously unselected package libjansson4:amd64.
+#7 5.866 Preparing to unpack .../01-libjansson4_2.14-2build4_amd64.deb ...
+#7 5.866 Unpacking libjansson4:amd64 (2.14-2build4) ...
+#7 5.878 Selecting previously unselected package manpages.
+#7 5.878 Preparing to unpack .../02-manpages_6.17-1_all.deb ...
+#7 5.879 Unpacking manpages (6.17-1) ...
+#7 5.901 Selecting previously unselected package libsframe3:amd64.
+#7 5.902 Preparing to unpack .../03-libsframe3_2.46-3ubuntu2_amd64.deb ...
+#7 5.903 Unpacking libsframe3:amd64 (2.46-3ubuntu2) ...
+#7 5.914 Selecting previously unselected package binutils-common:amd64.
+#7 5.915 Preparing to unpack .../04-binutils-common_2.46-3ubuntu2_amd64.deb ...
+#7 5.916 Unpacking binutils-common:amd64 (2.46-3ubuntu2) ...
+#7 5.929 Selecting previously unselected package libbinutils:amd64.
+#7 5.930 Preparing to unpack .../05-libbinutils_2.46-3ubuntu2_amd64.deb ...
+#7 5.931 Unpacking libbinutils:amd64 (2.46-3ubuntu2) ...
+#7 5.954 Selecting previously unselected package libgprofng0:amd64.
+#7 5.955 Preparing to unpack .../06-libgprofng0_2.46-3ubuntu2_amd64.deb ...
+#7 5.956 Unpacking libgprofng0:amd64 (2.46-3ubuntu2) ...
+#7 5.981 Selecting previously unselected package libctf-nobfd0:amd64.
+#7 5.982 Preparing to unpack .../07-libctf-nobfd0_2.46-3ubuntu2_amd64.deb ...
+#7 5.983 Unpacking libctf-nobfd0:amd64 (2.46-3ubuntu2) ...
+#7 5.996 Selecting previously unselected package libctf0:amd64.
+#7 5.996 Preparing to unpack .../08-libctf0_2.46-3ubuntu2_amd64.deb ...
+#7 5.997 Unpacking libctf0:amd64 (2.46-3ubuntu2) ...
+#7 6.009 Selecting previously unselected package binutils-x86-64-linux-gnu.
+#7 6.010 Preparing to unpack .../09-binutils-x86-64-linux-gnu_2.46-3ubuntu2_amd64.deb ...
+#7 6.011 Unpacking binutils-x86-64-linux-gnu (2.46-3ubuntu2) ...
+#7 6.064 Selecting previously unselected package binutils.
+#7 6.065 Preparing to unpack .../10-binutils_2.46-3ubuntu2_amd64.deb ...
+#7 6.067 Unpacking binutils (2.46-3ubuntu2) ...
+#7 6.087 Selecting previously unselected package gcc-15-base:amd64.
+#7 6.088 Preparing to unpack .../11-gcc-15-base_15.2.0-16ubuntu1_amd64.deb ...
+#7 6.089 Unpacking gcc-15-base:amd64 (15.2.0-16ubuntu1) ...
+#7 6.101 Selecting previously unselected package libisl23:amd64.
+#7 6.102 Preparing to unpack .../12-libisl23_0.27-1build1_amd64.deb ...
+#7 6.103 Unpacking libisl23:amd64 (0.27-1build1) ...
+#7 6.125 Selecting previously unselected package libmpfr6:amd64.
+#7 6.126 Preparing to unpack .../13-libmpfr6_4.2.2-3_amd64.deb ...
+#7 6.126 Unpacking libmpfr6:amd64 (4.2.2-3) ...
+#7 6.142 Selecting previously unselected package libmpc3:amd64.
+#7 6.143 Preparing to unpack .../14-libmpc3_1.3.1-3_amd64.deb ...
+#7 6.144 Unpacking libmpc3:amd64 (1.3.1-3) ...
+#7 6.156 Selecting previously unselected package cpp-15-x86-64-linux-gnu.
+#7 6.156 Preparing to unpack .../15-cpp-15-x86-64-linux-gnu_15.2.0-16ubuntu1_amd64.deb ...
+#7 6.157 Unpacking cpp-15-x86-64-linux-gnu (15.2.0-16ubuntu1) ...
+#7 6.302 Selecting previously unselected package cpp-15.
+#7 6.304 Preparing to unpack .../16-cpp-15_15.2.0-16ubuntu1_amd64.deb ...
+#7 6.305 Unpacking cpp-15 (15.2.0-16ubuntu1) ...
+#7 6.315 Selecting previously unselected package cpp-x86-64-linux-gnu.
+#7 6.316 Preparing to unpack .../17-cpp-x86-64-linux-gnu_4%3a15.2.0-5ubuntu1_amd64.deb ...
+#7 6.317 Unpacking cpp-x86-64-linux-gnu (4:15.2.0-5ubuntu1) ...
+#7 6.329 Selecting previously unselected package cpp.
+#7 6.330 Preparing to unpack .../18-cpp_4%3a15.2.0-5ubuntu1_amd64.deb ...
+#7 6.336 Unpacking cpp (4:15.2.0-5ubuntu1) ...
+#7 6.348 Selecting previously unselected package libcc1-0:amd64.
+#7 6.348 Preparing to unpack .../19-libcc1-0_16-20260322-1ubuntu1_amd64.deb ...
+#7 6.349 Unpacking libcc1-0:amd64 (16-20260322-1ubuntu1) ...
+#7 6.363 Selecting previously unselected package libgomp1:amd64.
+#7 6.363 Preparing to unpack .../20-libgomp1_16-20260322-1ubuntu1_amd64.deb ...
+#7 6.364 Unpacking libgomp1:amd64 (16-20260322-1ubuntu1) ...
+#7 6.378 Selecting previously unselected package libitm1:amd64.
+#7 6.379 Preparing to unpack .../21-libitm1_16-20260322-1ubuntu1_amd64.deb ...
+#7 6.380 Unpacking libitm1:amd64 (16-20260322-1ubuntu1) ...
+#7 6.392 Selecting previously unselected package libasan8:amd64.
+#7 6.393 Preparing to unpack .../22-libasan8_16-20260322-1ubuntu1_amd64.deb ...
+#7 6.394 Unpacking libasan8:amd64 (16-20260322-1ubuntu1) ...
+#7 6.444 Selecting previously unselected package liblsan0:amd64.
+#7 6.446 Preparing to unpack .../23-liblsan0_16-20260322-1ubuntu1_amd64.deb ...
+#7 6.447 Unpacking liblsan0:amd64 (16-20260322-1ubuntu1) ...
+#7 6.477 Selecting previously unselected package libtsan2:amd64.
+#7 6.478 Preparing to unpack .../24-libtsan2_16-20260322-1ubuntu1_amd64.deb ...
+#7 6.479 Unpacking libtsan2:amd64 (16-20260322-1ubuntu1) ...
+#7 6.525 Selecting previously unselected package libubsan1:amd64.
+#7 6.526 Preparing to unpack .../25-libubsan1_16-20260322-1ubuntu1_amd64.deb ...
+#7 6.527 Unpacking libubsan1:amd64 (16-20260322-1ubuntu1) ...
+#7 6.553 Selecting previously unselected package libhwasan0:amd64.
+#7 6.554 Preparing to unpack .../26-libhwasan0_16-20260322-1ubuntu1_amd64.deb ...
+#7 6.555 Unpacking libhwasan0:amd64 (16-20260322-1ubuntu1) ...
+#7 6.587 Selecting previously unselected package libquadmath0:amd64.
+#7 6.588 Preparing to unpack .../27-libquadmath0_16-20260322-1ubuntu1_amd64.deb ...
+#7 6.589 Unpacking libquadmath0:amd64 (16-20260322-1ubuntu1) ...
+#7 6.602 Selecting previously unselected package libgcc-15-dev:amd64.
+#7 6.603 Preparing to unpack .../28-libgcc-15-dev_15.2.0-16ubuntu1_amd64.deb ...
+#7 6.610 Unpacking libgcc-15-dev:amd64 (15.2.0-16ubuntu1) ...
+#7 6.687 Selecting previously unselected package gcc-15-x86-64-linux-gnu.
+#7 6.689 Preparing to unpack .../29-gcc-15-x86-64-linux-gnu_15.2.0-16ubuntu1_amd64.deb ...
+#7 6.690 Unpacking gcc-15-x86-64-linux-gnu (15.2.0-16ubuntu1) ...
+#7 6.953 Selecting previously unselected package gcc-15.
+#7 6.955 Preparing to unpack .../30-gcc-15_15.2.0-16ubuntu1_amd64.deb ...
+#7 6.955 Unpacking gcc-15 (15.2.0-16ubuntu1) ...
+#7 6.969 Selecting previously unselected package gcc-x86-64-linux-gnu.
+#7 6.970 Preparing to unpack .../31-gcc-x86-64-linux-gnu_4%3a15.2.0-5ubuntu1_amd64.deb ...
+#7 6.971 Unpacking gcc-x86-64-linux-gnu (4:15.2.0-5ubuntu1) ...
+#7 6.983 Selecting previously unselected package gcc.
+#7 6.984 Preparing to unpack .../32-gcc_4%3a15.2.0-5ubuntu1_amd64.deb ...
+#7 6.985 Unpacking gcc (4:15.2.0-5ubuntu1) ...
+#7 6.997 Selecting previously unselected package libc-dev-bin.
+#7 6.998 Preparing to unpack .../33-libc-dev-bin_2.43-2ubuntu2_amd64.deb ...
+#7 6.999 Unpacking libc-dev-bin (2.43-2ubuntu2) ...
+#7 7.010 Selecting previously unselected package linux-libc-dev:amd64.
+#7 7.011 Preparing to unpack .../34-linux-libc-dev_7.0.0-22.22_amd64.deb ...
+#7 7.012 Unpacking linux-libc-dev:amd64 (7.0.0-22.22) ...
+#7 7.158 Selecting previously unselected package rpcsvc-proto.
+#7 7.160 Preparing to unpack .../35-rpcsvc-proto_1.4.3-1build1_amd64.deb ...
+#7 7.160 Unpacking rpcsvc-proto (1.4.3-1build1) ...
+#7 7.176 Selecting previously unselected package libc6-dev:amd64.
+#7 7.177 Preparing to unpack .../36-libc6-dev_2.43-2ubuntu2_amd64.deb ...
+#7 7.178 Unpacking libc6-dev:amd64 (2.43-2ubuntu2) ...
+#7 7.287 Selecting previously unselected package libstdc++-15-dev:amd64.
+#7 7.289 Preparing to unpack .../37-libstdc++-15-dev_15.2.0-16ubuntu1_amd64.deb ...
+#7 7.290 Unpacking libstdc++-15-dev:amd64 (15.2.0-16ubuntu1) ...
+#7 7.455 Selecting previously unselected package g++-15-x86-64-linux-gnu.
+#7 7.457 Preparing to unpack .../38-g++-15-x86-64-linux-gnu_15.2.0-16ubuntu1_amd64.deb ...
+#7 7.458 Unpacking g++-15-x86-64-linux-gnu (15.2.0-16ubuntu1) ...
+#7 7.607 Selecting previously unselected package g++-15.
+#7 7.608 Preparing to unpack .../39-g++-15_15.2.0-16ubuntu1_amd64.deb ...
+#7 7.609 Unpacking g++-15 (15.2.0-16ubuntu1) ...
+#7 7.623 Selecting previously unselected package g++-x86-64-linux-gnu.
+#7 7.624 Preparing to unpack .../40-g++-x86-64-linux-gnu_4%3a15.2.0-5ubuntu1_amd64.deb ...
+#7 7.625 Unpacking g++-x86-64-linux-gnu (4:15.2.0-5ubuntu1) ...
+#7 7.637 Selecting previously unselected package g++.
+#7 7.638 Preparing to unpack .../41-g++_4%3a15.2.0-5ubuntu1_amd64.deb ...
+#7 7.638 Unpacking g++ (4:15.2.0-5ubuntu1) ...
+#7 7.650 Selecting previously unselected package manpages-dev.
+#7 7.650 Preparing to unpack .../42-manpages-dev_6.17-1_all.deb ...
+#7 7.651 Unpacking manpages-dev (6.17-1) ...
+#7 7.691 Setting up manpages (6.17-1) ...
+#7 7.693 Setting up binutils-common:amd64 (2.46-3ubuntu2) ...
+#7 7.696 Setting up libsframe3:amd64 (2.46-3ubuntu2) ...
+#7 7.698 Setting up linux-libc-dev:amd64 (7.0.0-22.22) ...
+#7 7.701 Setting up libctf-nobfd0:amd64 (2.46-3ubuntu2) ...
+#7 7.703 Setting up libgomp1:amd64 (16-20260322-1ubuntu1) ...
+#7 7.705 Setting up libjansson4:amd64 (2.14-2build4) ...
+#7 7.708 Setting up rpcsvc-proto (1.4.3-1build1) ...
+#7 7.710 Setting up libmpfr6:amd64 (4.2.2-3) ...
+#7 7.712 Setting up libquadmath0:amd64 (16-20260322-1ubuntu1) ...
+#7 7.715 Setting up libmpc3:amd64 (1.3.1-3) ...
+#7 7.717 Setting up libatomic1:amd64 (16-20260322-1ubuntu1) ...
+#7 7.720 Setting up libubsan1:amd64 (16-20260322-1ubuntu1) ...
+#7 7.722 Setting up libhwasan0:amd64 (16-20260322-1ubuntu1) ...
+#7 7.728 Setting up libasan8:amd64 (16-20260322-1ubuntu1) ...
+#7 7.730 Setting up libtsan2:amd64 (16-20260322-1ubuntu1) ...
+#7 7.733 Setting up libbinutils:amd64 (2.46-3ubuntu2) ...
+#7 7.736 Setting up libisl23:amd64 (0.27-1build1) ...
+#7 7.738 Setting up libc-dev-bin (2.43-2ubuntu2) ...
+#7 7.740 Setting up gcc-15-base:amd64 (15.2.0-16ubuntu1) ...
+#7 7.743 Setting up libcc1-0:amd64 (16-20260322-1ubuntu1) ...
+#7 7.746 Setting up liblsan0:amd64 (16-20260322-1ubuntu1) ...
+#7 7.748 Setting up libitm1:amd64 (16-20260322-1ubuntu1) ...
+#7 7.751 Setting up libctf0:amd64 (2.46-3ubuntu2) ...
+#7 7.753 Setting up manpages-dev (6.17-1) ...
+#7 7.757 Setting up libgcc-15-dev:amd64 (15.2.0-16ubuntu1) ...
+#7 7.759 Setting up cpp-15-x86-64-linux-gnu (15.2.0-16ubuntu1) ...
+#7 7.762 Setting up libgprofng0:amd64 (2.46-3ubuntu2) ...
+#7 7.764 Setting up cpp-15 (15.2.0-16ubuntu1) ...
+#7 7.767 Setting up libc6-dev:amd64 (2.43-2ubuntu2) ...
+#7 7.769 Setting up binutils-x86-64-linux-gnu (2.46-3ubuntu2) ...
+#7 7.772 Setting up cpp-x86-64-linux-gnu (4:15.2.0-5ubuntu1) ...
+#7 7.775 Setting up binutils (2.46-3ubuntu2) ...
+#7 7.778 Setting up gcc-15-x86-64-linux-gnu (15.2.0-16ubuntu1) ...
+#7 7.780 Setting up gcc-15 (15.2.0-16ubuntu1) ...
+#7 7.783 Setting up libstdc++-15-dev:amd64 (15.2.0-16ubuntu1) ...
+#7 7.786 Setting up cpp (4:15.2.0-5ubuntu1) ...
+#7 7.796 Setting up g++-15-x86-64-linux-gnu (15.2.0-16ubuntu1) ...
+#7 7.799 Setting up gcc-x86-64-linux-gnu (4:15.2.0-5ubuntu1) ...
+#7 7.801 Setting up gcc (4:15.2.0-5ubuntu1) ...
+#7 7.808 Setting up g++-x86-64-linux-gnu (4:15.2.0-5ubuntu1) ...
+#7 7.811 Setting up g++-15 (15.2.0-16ubuntu1) ...
+#7 7.814 Setting up g++ (4:15.2.0-5ubuntu1) ...
+#7 7.816 update-alternatives: using /usr/bin/g++ to provide /usr/bin/c++ (c++) in auto mode
+#7 7.817 update-alternatives: warning: skip creation of /usr/share/man/man1/c++.1.gz because associated file /usr/share/man/man1/g++.1.gz (of link group c++) does not exist
+#7 7.818 Processing triggers for libc-bin (2.43-2ubuntu2) ...
+#7 DONE 11.1s
+
+#8 [3/7] RUN apt-get install -y python3 python3-pip git htop
+#8 0.125 Reading package lists...
+#8 0.675 Building dependency tree...
+#8 0.842 Reading state information...
+#8 0.871 Solving dependencies...
+#8 1.020 The following additional packages will be installed:
+#8 1.021   adduser build-essential bzip2 ca-certificates dirmngr dpkg-dev fakeroot
+#8 1.021   git-man gnupg gnupg-l10n gnupg-utils gpg gpg-agent gpg-wks-client gpgconf
+#8 1.021   gpgsm krb5-locales less libalgorithm-diff-perl libalgorithm-diff-xs-perl
+#8 1.021   libalgorithm-merge-perl libassuan9 libbrotli1 libcbor0.10 libcurl3t64-gnutls
+#8 1.021   libdpkg-perl libedit2 liberror-perl libexpat1 libexpat1-dev libfakeroot
+#8 1.021   libffi8 libfido2-1 libfile-fcntllock-perl libgdbm-compat4t64 libgdbm6t64
+#8 1.021   libgnutls30t64 libgssapi-krb5-2 libhogweed6t64 libidn2-0 libjs-sphinxdoc
+#8 1.021   libk5crypto3 libkeyutils1 libkrb5-3 libkrb5support0 libksba8 libldap-common
+#8 1.021   libldap2 liblocale-gettext-perl libnettle8t64 libnghttp2-14 libnpth0t64
+#8 1.021   libp11-kit0 libperl5.40 libpsl5t64 libpython3-dev libpython3-stdlib
+#8 1.021   libpython3.14 libpython3.14-dev libpython3.14-minimal libpython3.14-stdlib
+#8 1.021   libreadline8t64 librtmp1 libsasl2-2 libsasl2-modules libsasl2-modules-db
+#8 1.021   libsqlite3-0 libssh2-1t64 libssl3t64 libtasn1-6 libunistring5 libx11-6
+#8 1.021   libx11-data libxau6 libxcb1 libxdmcp6 libxext6 libxmuu1 lto-disabled-list
+#8 1.021   make media-types netbase openssh-client openssl openssl-provider-legacy
+#8 1.021   patch perl perl-modules-5.40 pinentry-curses publicsuffix python3-dev
+#8 1.021   python3-minimal python3-packaging python3-wheel python3.14 python3.14-dev
+#8 1.022   python3.14-minimal readline-common tzdata xauth xz-utils zlib1g-dev
+#8 1.022 Suggested packages:
+#8 1.022   cron quota ecryptfs-utils bzip2-doc dbus-user-session libpam-systemd
+#8 1.022   pinentry-gnome3 tor debian-keyring debian-tag2upload-keyring gettext-base
+#8 1.022   git-doc git-email git-gui gitk gitweb git-cvs git-svn gpg-wks-server
+#8 1.022   parcimonie xloadimage scdaemon tpm2daemon lm-sensors lsof strace bzr
+#8 1.022   gdbm-l10n gnutls-bin krb5-doc krb5-user libsasl2-modules-gssapi-mit
+#8 1.022   | libsasl2-modules-gssapi-heimdal libsasl2-modules-ldap libsasl2-modules-otp
+#8 1.022   libsasl2-modules-sql make-doc keychain libpam-ssh monkeysphere ssh-askpass
+#8 1.022   ed diffutils-doc perl-doc libterm-readline-gnu-perl
+#8 1.022   | libterm-readline-perl-perl libtap-harness-archive-perl pinentry-doc
+#8 1.022   python3-doc python3-tk python3-venv python3-setuptools python3.14-venv
+#8 1.022   python3.14-doc binfmt-support readline-doc
+#8 1.154 The following NEW packages will be installed:
+#8 1.154   adduser build-essential bzip2 ca-certificates dirmngr dpkg-dev fakeroot git
+#8 1.154   git-man gnupg gnupg-l10n gnupg-utils gpg gpg-agent gpg-wks-client gpgconf
+#8 1.154   gpgsm htop krb5-locales less libalgorithm-diff-perl
+#8 1.154   libalgorithm-diff-xs-perl libalgorithm-merge-perl libassuan9 libbrotli1
+#8 1.154   libcbor0.10 libcurl3t64-gnutls libdpkg-perl libedit2 liberror-perl libexpat1
+#8 1.154   libexpat1-dev libfakeroot libffi8 libfido2-1 libfile-fcntllock-perl
+#8 1.154   libgdbm-compat4t64 libgdbm6t64 libgnutls30t64 libgssapi-krb5-2
+#8 1.154   libhogweed6t64 libidn2-0 libjs-sphinxdoc libk5crypto3 libkeyutils1 libkrb5-3
+#8 1.154   libkrb5support0 libksba8 libldap-common libldap2 liblocale-gettext-perl
+#8 1.154   libnettle8t64 libnghttp2-14 libnpth0t64 libp11-kit0 libperl5.40 libpsl5t64
+#8 1.154   libpython3-dev libpython3-stdlib libpython3.14 libpython3.14-dev
+#8 1.154   libpython3.14-minimal libpython3.14-stdlib libreadline8t64 librtmp1
+#8 1.154   libsasl2-2 libsasl2-modules libsasl2-modules-db libsqlite3-0 libssh2-1t64
+#8 1.155   libtasn1-6 libunistring5 libx11-6 libx11-data libxau6 libxcb1 libxdmcp6
+#8 1.155   libxext6 libxmuu1 lto-disabled-list make media-types netbase openssh-client
+#8 1.155   openssl patch perl perl-modules-5.40 pinentry-curses publicsuffix python3
+#8 1.155   python3-dev python3-minimal python3-packaging python3-pip python3-wheel
+#8 1.155   python3.14 python3.14-dev python3.14-minimal readline-common tzdata xauth
+#8 1.155   xz-utils zlib1g-dev
+#8 1.156 The following packages will be upgraded:
+#8 1.157   libssl3t64 openssl-provider-legacy
+#8 4.222 2 upgraded, 104 newly installed, 0 to remove and 3 not upgraded.
+#8 4.222 Need to get 49.4 MB of archives.
+#8 4.222 After this operation, 199 MB of additional disk space will be used.
+#8 4.222 Get:1 http://archive.ubuntu.com/ubuntu resolute/main amd64 libexpat1 amd64 2.7.4-1 [94.0 kB]
+#8 4.235 Get:2 http://archive.ubuntu.com/ubuntu resolute/main amd64 liblocale-gettext-perl amd64 1.07-8 [15.8 kB]
+#8 4.246 Get:3 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 openssl-provider-legacy amd64 3.5.5-1ubuntu3.2 [39.7 kB]
+#8 4.257 Get:4 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libssl3t64 amd64 3.5.5-1ubuntu3.2 [2361 kB]
+#8 4.284 Get:5 http://archive.ubuntu.com/ubuntu resolute/main amd64 libpython3.14-minimal amd64 3.14.4-1 [916 kB]
+#8 4.304 Get:6 http://archive.ubuntu.com/ubuntu resolute/main amd64 python3.14-minimal amd64 3.14.4-1 [2579 kB]
+#8 4.345 Get:7 http://archive.ubuntu.com/ubuntu resolute/main amd64 python3-minimal amd64 3.14.3-0ubuntu2 [25.8 kB]
+#8 4.355 Get:8 http://archive.ubuntu.com/ubuntu resolute/main amd64 media-types all 14.0.0build1 [31.4 kB]
+#8 4.366 Get:9 http://archive.ubuntu.com/ubuntu resolute/main amd64 netbase all 6.5build1 [13.0 kB]
+#8 4.375 Get:10 http://archive.ubuntu.com/ubuntu resolute/main amd64 tzdata all 2026a-3ubuntu1 [194 kB]
+#8 4.386 Get:11 http://archive.ubuntu.com/ubuntu resolute/main amd64 libffi8 amd64 3.5.2-4 [26.3 kB]
+#8 4.395 Get:12 http://archive.ubuntu.com/ubuntu resolute/main amd64 readline-common all 8.3-4 [61.5 kB]
+#8 4.407 Get:13 http://archive.ubuntu.com/ubuntu resolute/main amd64 libreadline8t64 amd64 8.3-4 [164 kB]
+#8 4.426 Get:14 http://archive.ubuntu.com/ubuntu resolute/main amd64 libsqlite3-0 amd64 3.46.1-9 [722 kB]
+#8 4.438 Get:15 http://archive.ubuntu.com/ubuntu resolute/main amd64 libpython3.14-stdlib amd64 3.14.4-1 [2406 kB]
+#8 4.462 Get:16 http://archive.ubuntu.com/ubuntu resolute/main amd64 python3.14 amd64 3.14.4-1 [830 kB]
+#8 4.481 Get:17 http://archive.ubuntu.com/ubuntu resolute/main amd64 libpython3-stdlib amd64 3.14.3-0ubuntu2 [8476 B]
+#8 4.492 Get:18 http://archive.ubuntu.com/ubuntu resolute/main amd64 python3 amd64 3.14.3-0ubuntu2 [22.9 kB]
+#8 4.503 Get:19 http://archive.ubuntu.com/ubuntu resolute/main amd64 adduser all 3.153ubuntu1 [194 kB]
+#8 4.522 Get:20 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 openssl amd64 3.5.5-1ubuntu3.2 [1243 kB]
+#8 4.540 Get:21 http://archive.ubuntu.com/ubuntu resolute/main amd64 ca-certificates all 20260223 [158 kB]
+#8 4.550 Get:22 http://archive.ubuntu.com/ubuntu resolute/main amd64 krb5-locales all 1.22.1-2ubuntu4 [13.4 kB]
+#8 4.558 Get:23 http://archive.ubuntu.com/ubuntu resolute/main amd64 less amd64 668-1build1 [172 kB]
+#8 4.568 Get:24 http://archive.ubuntu.com/ubuntu resolute/main amd64 libedit2 amd64 3.1-20251016-1 [96.9 kB]
+#8 4.579 Get:25 http://archive.ubuntu.com/ubuntu resolute/main amd64 libnettle8t64 amd64 3.10.2-1 [185 kB]
+#8 4.591 Get:26 http://archive.ubuntu.com/ubuntu resolute/main amd64 libhogweed6t64 amd64 3.10.2-1 [201 kB]
+#8 4.602 Get:27 http://archive.ubuntu.com/ubuntu resolute/main amd64 libunistring5 amd64 1.3-2build1 [610 kB]
+#8 4.615 Get:28 http://archive.ubuntu.com/ubuntu resolute/main amd64 libidn2-0 amd64 2.3.8-4build1 [67.6 kB]
+#8 4.625 Get:29 http://archive.ubuntu.com/ubuntu resolute/main amd64 libp11-kit0 amd64 0.26.2-2 [313 kB]
+#8 4.636 Get:30 http://archive.ubuntu.com/ubuntu resolute/main amd64 libtasn1-6 amd64 4.21.0-2 [45.3 kB]
+#8 4.648 Get:31 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libgnutls30t64 amd64 3.8.12-2ubuntu1.1 [1029 kB]
+#8 4.667 Get:32 http://archive.ubuntu.com/ubuntu resolute/main amd64 libkrb5support0 amd64 1.22.1-2ubuntu4 [33.3 kB]
+#8 4.677 Get:33 http://archive.ubuntu.com/ubuntu resolute/main amd64 libk5crypto3 amd64 1.22.1-2ubuntu4 [82.0 kB]
+#8 4.688 Get:34 http://archive.ubuntu.com/ubuntu resolute/main amd64 libkeyutils1 amd64 1.6.3-6ubuntu3 [10.6 kB]
+#8 4.701 Get:35 http://archive.ubuntu.com/ubuntu resolute/main amd64 libkrb5-3 amd64 1.22.1-2ubuntu4 [361 kB]
+#8 4.712 Get:36 http://archive.ubuntu.com/ubuntu resolute/main amd64 libgssapi-krb5-2 amd64 1.22.1-2ubuntu4 [147 kB]
+#8 4.723 Get:37 http://archive.ubuntu.com/ubuntu resolute/main amd64 libcbor0.10 amd64 0.10.2-2ubuntu3 [25.3 kB]
+#8 4.732 Get:38 http://archive.ubuntu.com/ubuntu resolute/main amd64 libfido2-1 amd64 1.16.0-2build1 [84.6 kB]
+#8 4.742 Get:39 http://archive.ubuntu.com/ubuntu resolute/main amd64 libgdbm6t64 amd64 1.26-1build1 [36.5 kB]
+#8 4.752 Get:40 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libnghttp2-14 amd64 1.68.0-2ubuntu0.1 [70.9 kB]
+#8 4.763 Get:41 http://archive.ubuntu.com/ubuntu resolute/main amd64 libpsl5t64 amd64 0.21.2-1.1build2 [59.5 kB]
+#8 4.772 Get:42 http://archive.ubuntu.com/ubuntu resolute/main amd64 libxau6 amd64 1:1.0.11-1build2 [7502 B]
+#8 4.787 Get:43 http://archive.ubuntu.com/ubuntu resolute/main amd64 libxdmcp6 amd64 1:1.1.5-2 [10.8 kB]
+#8 4.800 Get:44 http://archive.ubuntu.com/ubuntu resolute/main amd64 libxcb1 amd64 1.17.0-2ubuntu1 [49.0 kB]
+#8 4.816 Get:45 http://archive.ubuntu.com/ubuntu resolute/main amd64 libx11-data all 2:1.8.13-1 [114 kB]
+#8 4.827 Get:46 http://archive.ubuntu.com/ubuntu resolute/main amd64 libx11-6 amd64 2:1.8.13-1 [657 kB]
+#8 4.841 Get:47 http://archive.ubuntu.com/ubuntu resolute/main amd64 libxext6 amd64 2:1.3.4-1build3 [30.8 kB]
+#8 4.851 Get:48 http://archive.ubuntu.com/ubuntu resolute/main amd64 libxmuu1 amd64 2:1.1.3-4 [9450 B]
+#8 4.861 Get:49 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 openssh-client amd64 1:10.2p1-2ubuntu3.2 [934 kB]
+#8 4.875 Get:50 http://archive.ubuntu.com/ubuntu resolute/main amd64 publicsuffix all 20260129.1928-1 [139 kB]
+#8 4.888 Get:51 http://archive.ubuntu.com/ubuntu resolute/main amd64 xauth amd64 1:1.1.2-1.1build1 [25.7 kB]
+#8 4.899 Get:52 http://archive.ubuntu.com/ubuntu resolute/main amd64 xz-utils amd64 5.8.3-1 [406 kB]
+#8 4.911 Get:53 http://archive.ubuntu.com/ubuntu resolute/main amd64 make amd64 4.4.1-3 [197 kB]
+#8 4.922 Get:54 http://archive.ubuntu.com/ubuntu resolute/main amd64 perl-modules-5.40 all 5.40.1-7build1 [3212 kB]
+#8 4.949 Get:55 http://archive.ubuntu.com/ubuntu resolute/main amd64 libgdbm-compat4t64 amd64 1.26-1build1 [6796 B]
+#8 4.960 Get:56 http://archive.ubuntu.com/ubuntu resolute/main amd64 libperl5.40 amd64 5.40.1-7build1 [4884 kB]
+#8 4.995 Get:57 http://archive.ubuntu.com/ubuntu resolute/main amd64 perl amd64 5.40.1-7build1 [262 kB]
+#8 5.006 Get:58 http://archive.ubuntu.com/ubuntu resolute/main amd64 libdpkg-perl all 1.23.7ubuntu1 [289 kB]
+#8 5.017 Get:59 http://archive.ubuntu.com/ubuntu resolute/main amd64 bzip2 amd64 1.0.8-6build2 [34.3 kB]
+#8 5.027 Get:60 http://archive.ubuntu.com/ubuntu resolute/main amd64 patch amd64 2.8-2build1 [95.7 kB]
+#8 5.040 Get:61 http://archive.ubuntu.com/ubuntu resolute/main amd64 lto-disabled-list all 79 [14.2 kB]
+#8 5.051 Get:62 http://archive.ubuntu.com/ubuntu resolute/main amd64 dpkg-dev all 1.23.7ubuntu1 [1062 kB]
+#8 5.066 Get:63 http://archive.ubuntu.com/ubuntu resolute/main amd64 build-essential amd64 12.12ubuntu2 [5256 B]
+#8 5.078 Get:64 http://archive.ubuntu.com/ubuntu resolute/main amd64 libassuan9 amd64 3.0.2-2build1 [41.3 kB]
+#8 5.087 Get:65 http://archive.ubuntu.com/ubuntu resolute/main amd64 gpgconf amd64 2.4.8-4ubuntu3 [111 kB]
+#8 5.096 Get:66 http://archive.ubuntu.com/ubuntu resolute/main amd64 libksba8 amd64 1.6.7-2build1 [125 kB]
+#8 5.107 Get:67 http://archive.ubuntu.com/ubuntu resolute/main amd64 libsasl2-modules-db amd64 2.1.28+dfsg1-9ubuntu3 [21.1 kB]
+#8 5.120 Get:68 http://archive.ubuntu.com/ubuntu resolute/main amd64 libsasl2-2 amd64 2.1.28+dfsg1-9ubuntu3 [54.0 kB]
+#8 5.130 Get:69 http://archive.ubuntu.com/ubuntu resolute/main amd64 libldap-common all 2.6.10+dfsg-1ubuntu5 [36.0 kB]
+#8 5.140 Get:70 http://archive.ubuntu.com/ubuntu resolute/main amd64 libldap2 amd64 2.6.10+dfsg-1ubuntu5 [204 kB]
+#8 5.150 Get:71 http://archive.ubuntu.com/ubuntu resolute/main amd64 libnpth0t64 amd64 1.8-3build1 [9302 B]
+#8 5.161 Get:72 http://archive.ubuntu.com/ubuntu resolute/main amd64 dirmngr amd64 2.4.8-4ubuntu3 [327 kB]
+#8 5.173 Get:73 http://archive.ubuntu.com/ubuntu resolute/main amd64 libfakeroot amd64 1.37.2-1 [34.0 kB]
+#8 5.184 Get:74 http://archive.ubuntu.com/ubuntu resolute/main amd64 fakeroot amd64 1.37.2-1 [68.3 kB]
+#8 5.193 Get:75 http://archive.ubuntu.com/ubuntu resolute/main amd64 libbrotli1 amd64 1.2.0-3build1 [343 kB]
+#8 5.205 Get:76 http://archive.ubuntu.com/ubuntu resolute/main amd64 librtmp1 amd64 2.4+20151223.gitfa8646d.1-3 [59.0 kB]
+#8 5.216 Get:77 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libssh2-1t64 amd64 1.11.1-1ubuntu0.26.04.1 [137 kB]
+#8 5.226 Get:78 http://archive.ubuntu.com/ubuntu resolute-updates/main amd64 libcurl3t64-gnutls amd64 8.18.0-1ubuntu2.1 [416 kB]
+#8 5.236 Get:79 http://archive.ubuntu.com/ubuntu resolute/main amd64 liberror-perl all 0.17030-1 [23.5 kB]
+#8 5.247 Get:80 http://archive.ubuntu.com/ubuntu resolute/main amd64 git-man all 1:2.53.0-1ubuntu1 [1202 kB]
+#8 5.260 Get:81 http://archive.ubuntu.com/ubuntu resolute/main amd64 git amd64 1:2.53.0-1ubuntu1 [4227 kB]
+#8 5.289 Get:82 http://archive.ubuntu.com/ubuntu resolute/main amd64 gpg amd64 2.4.8-4ubuntu3 [637 kB]
+#8 5.299 Get:83 http://archive.ubuntu.com/ubuntu resolute/main amd64 pinentry-curses amd64 1.3.2-3ubuntu1 [41.1 kB]
+#8 5.311 Get:84 http://archive.ubuntu.com/ubuntu resolute/main amd64 gpg-agent amd64 2.4.8-4ubuntu3 [236 kB]
+#8 5.322 Get:85 http://archive.ubuntu.com/ubuntu resolute/main amd64 gpgsm amd64 2.4.8-4ubuntu3 [239 kB]
+#8 5.332 Get:86 http://archive.ubuntu.com/ubuntu resolute/main amd64 gnupg all 2.4.8-4ubuntu3 [311 kB]
+#8 5.342 Get:87 http://archive.ubuntu.com/ubuntu resolute/main amd64 gnupg-l10n all 2.4.8-4ubuntu3 [73.5 kB]
+#8 5.356 Get:88 http://archive.ubuntu.com/ubuntu resolute/main amd64 gnupg-utils amd64 2.4.8-4ubuntu3 [132 kB]
+#8 5.366 Get:89 http://archive.ubuntu.com/ubuntu resolute/main amd64 gpg-wks-client amd64 2.4.8-4ubuntu3 [71.9 kB]
+#8 5.377 Get:90 http://archive.ubuntu.com/ubuntu resolute/main amd64 htop amd64 3.4.1-5build2 [177 kB]
+#8 5.388 Get:91 http://archive.ubuntu.com/ubuntu resolute/main amd64 libalgorithm-diff-perl all 1.201-1 [41.8 kB]
+#8 5.400 Get:92 http://archive.ubuntu.com/ubuntu resolute/main amd64 libalgorithm-diff-xs-perl amd64 0.04-9 [11.5 kB]
+#8 5.411 Get:93 http://archive.ubuntu.com/ubuntu resolute/main amd64 libalgorithm-merge-perl all 0.08-5 [11.4 kB]
+#8 5.422 Get:94 http://archive.ubuntu.com/ubuntu resolute/main amd64 libexpat1-dev amd64 2.7.4-1 [145 kB]
+#8 5.434 Get:95 http://archive.ubuntu.com/ubuntu resolute/main amd64 libfile-fcntllock-perl amd64 0.22-4ubuntu6 [32.8 kB]
+#8 5.446 Get:96 http://archive.ubuntu.com/ubuntu resolute/main amd64 libjs-sphinxdoc all 8.2.3-12 [28.4 kB]
+#8 5.455 Get:97 http://archive.ubuntu.com/ubuntu resolute/main amd64 libpython3.14 amd64 3.14.4-1 [2577 kB]
+#8 5.477 Get:98 http://archive.ubuntu.com/ubuntu resolute/main amd64 zlib1g-dev amd64 1:1.3.dfsg+really1.3.1-1ubuntu3 [895 kB]
+#8 5.490 Get:99 http://archive.ubuntu.com/ubuntu resolute/main amd64 libpython3.14-dev amd64 3.14.4-1 [5986 kB]
+#8 5.537 Get:100 http://archive.ubuntu.com/ubuntu resolute/main amd64 libpython3-dev amd64 3.14.3-0ubuntu2 [8736 B]
+#8 5.546 Get:101 http://archive.ubuntu.com/ubuntu resolute/main amd64 libsasl2-modules amd64 2.1.28+dfsg1-9ubuntu3 [71.3 kB]
+#8 5.558 Get:102 http://archive.ubuntu.com/ubuntu resolute/main amd64 python3.14-dev amd64 3.14.4-1 [510 kB]
+#8 5.569 Get:103 http://archive.ubuntu.com/ubuntu resolute/main amd64 python3-dev amd64 3.14.3-0ubuntu2 [26.6 kB]
+#8 5.579 Get:104 http://archive.ubuntu.com/ubuntu resolute/main amd64 python3-packaging all 26.0-1 [58.7 kB]
+#8 5.591 Get:105 http://archive.ubuntu.com/ubuntu resolute/universe amd64 python3-wheel all 0.46.3-2 [27.9 kB]
+#8 5.602 Get:106 http://archive.ubuntu.com/ubuntu resolute/universe amd64 python3-pip all 25.1.1+dfsg-1ubuntu2 [1416 kB]
+#8 5.727 debconf: unable to initialize frontend: Dialog
+#8 5.727 debconf: (TERM is not set, so the dialog frontend is not usable.)
+#8 5.727 debconf: falling back to frontend: Readline
+#8 5.727 debconf: unable to initialize frontend: Readline
+#8 5.727 debconf: (Can't locate Term/ReadLine.pm in @INC (you may need to install the Term::ReadLine module) (@INC entries checked: /etc/perl /usr/local/lib/x86_64-linux-gnu/perl/5.40.1 /usr/local/share/perl/5.40.1 /usr/lib/x86_64-linux-gnu/perl5/5.40 /usr/share/perl5 /usr/lib/x86_64-linux-gnu/perl-base /usr/lib/x86_64-linux-gnu/perl/5.40 /usr/share/perl/5.40 /usr/local/lib/site_perl) at /usr/share/perl5/Debconf/FrontEnd/Readline.pm line 8, <STDIN> line 106.)
+#8 5.727 debconf: falling back to frontend: Teletype
+#8 5.735 debconf: unable to initialize frontend: Teletype
+#8 5.735 debconf: (This frontend requires a controlling tty.)
+#8 5.735 debconf: falling back to frontend: Noninteractive
+#8 7.864 Preconfiguring packages ...
+#8 7.939 Fetched 49.4 MB in 4s (11.1 MB/s)
+#8 7.951 Selecting previously unselected package libexpat1:amd64.
+#8 7.951 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 14089 files and directories currently installed.)
+#8 7.961 Preparing to unpack .../libexpat1_2.7.4-1_amd64.deb ...
+#8 7.962 Unpacking libexpat1:amd64 (2.7.4-1) ...
+#8 7.977 Selecting previously unselected package liblocale-gettext-perl.
+#8 7.978 Preparing to unpack .../liblocale-gettext-perl_1.07-8_amd64.deb ...
+#8 7.979 Unpacking liblocale-gettext-perl (1.07-8) ...
+#8 7.992 Preparing to unpack .../openssl-provider-legacy_3.5.5-1ubuntu3.2_amd64.deb ...
+#8 7.997 Unpacking openssl-provider-legacy (3.5.5-1ubuntu3.2) over (3.5.5-1ubuntu3) ...
+#8 8.014 Setting up openssl-provider-legacy (3.5.5-1ubuntu3.2) ...
+#8 8.028 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 14111 files and directories currently installed.)
+#8 8.036 Preparing to unpack .../libssl3t64_3.5.5-1ubuntu3.2_amd64.deb ...
+#8 8.038 Unpacking libssl3t64:amd64 (3.5.5-1ubuntu3.2
