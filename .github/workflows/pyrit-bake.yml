@@ -44,6 +44,13 @@ jobs:
           git clone --depth=1 --branch "v${VERSION}" https://github.com/microsoft/PyRIT.git pyrit-src
           echo "PYRIT_COMMIT=$(git -C pyrit-src rev-parse HEAD)" >> $GITHUB_ENV
 
+      # pyyaml is a transitive dep (via transformers/datasets) but uv doesn't
+      # resolve it reliably on ARM64 via QEMU. Patch it in explicitly.
+      - name: Patch Dockerfile to explicitly install pyyaml
+        run: |
+          sed -i 's|uv pip install --python /opt/venv/bin/python ipykernel jupyter|uv pip install --python /opt/venv/bin/python pyyaml ipykernel jupyter|' \
+            pyrit-src/docker/Dockerfile
+
       # Push devcontainer to GHCR so the production build can reference it
       # as BASE_IMAGE across both platforms (load: true doesn't work for multi-platform)
       - name: Build and push devcontainer base image
