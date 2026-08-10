@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       pyrit_version:
-        description: 'PyRIT version to install from PyPI (e.g. 1.0.0)'
+        description: 'PyRIT version to install from PyPI (e.g. 1.0.1)'
         required: true
-        default: '1.0.0'
+        default: '1.0.1'
 
 jobs:
   bake:
