@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       model_repo:
-        description: 'HuggingFace model repo (e.g. Qwen/Qwen2.5-Coder-32B)'
+        description: 'HuggingFace model or dataset repo (e.g. Qwen/Qwen2.5-Coder-32B)'
         required: true
         default: 'Qwen/Qwen2.5-Coder-32B'
       start_shard:
@@ -15,6 +15,18 @@ on:
         description: 'Comma-separated exclude patterns (for resuming)'
         required: false
         default: ''
+      repo_type:
+        description: 'HuggingFace repo type'
+        required: false
+        type: choice
+        options:
+          - model
+          - dataset
+        default: 'model'
+      skill_ref:
+        description: 'Git ref to take the mlbakery skill scripts from'
+        required: false
+        default: 'vk-dev'
 
 jobs:
   bake:
@@ -33,10 +45,10 @@ jobs:
           sudo apt-get clean
           df -h /
 
-      - name: Checkout vk-dev
+      - name: Checkout skill ref
         uses: actions/checkout@v4
         with:
-          ref: vk-dev
+          ref: ${{ inputs.skill_ref }}
 
       - name: Install dependencies
         run: |
@@ -76,7 +88,7 @@ jobs:
           echo "Docker:"
           docker info 2>&1 | head -3
           echo "Test list_repo_files:"
-          python3 -c "from huggingface_hub import list_repo_files; files=list(list_repo_files('${{ inputs.model_repo }}')); st=[f for f in files if f.endswith('.safetensors')]; ox=[f for f in files if f.endswith('.onnx')]; print(f'Total: {len(files)} safetensors: {len(st)} onnx: {len(ox)}')"
+          python3 -c "from huggingface_hub import list_repo_files; files=list(list_repo_files('${{ inputs.model_repo }}', repo_type='${{ inputs.repo_type }}')); st=[f for f in files if f.endswith('.safetensors')]; ox=[f for f in files if f.endswith('.onnx')]; print(f'Total: {len(files)} safetensors: {len(st)} onnx: {len(ox)}')"
 
       - name: Run bake
         id: bake
@@ -86,6 +98,9 @@ jobs:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
           ARGS="-m ${{ inputs.model_repo }}"
+          if [ "${{ inputs.repo_type }}" = "dataset" ]; then
+            ARGS="$ARGS -d"
+          fi
           if [ "${{ inputs.start_shard }}" != "1" ]; then
             ARGS="$ARGS -s ${{ inputs.start_shard }}"
           fi
