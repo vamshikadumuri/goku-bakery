@@ -1,0 +1,9 @@
+Unknown arg: -d
+Usage: .claude/skills/mlbakery/scripts/bake.sh -m MODEL_REPO [OPTIONS]
+  -m MODEL_REPO   HF model repo [required]
+  -t TAG_PREFIX   Image tag prefix (default: derived from repo name)
+  -s START_SHARD  Resume from shard N (default: 1)
+  -u GHCR_USER    GHCR username (default: vamshikadumuri)
+  -e EXCLUDE      Comma-separated exclude patterns
+  -v VENV_NAME    Venv dir name inside project dir
+  -h              Help
