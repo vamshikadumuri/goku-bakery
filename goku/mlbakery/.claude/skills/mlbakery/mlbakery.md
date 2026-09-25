@@ -84,7 +84,7 @@ With `-d`, the whole dataset repo is downloaded (`repo_type="dataset"`) into
 `/datasets/` instead of `/models/`. `-e` patterns are passed as ignore patterns.
 
 From GitHub Actions, run the **MLBakery Bake** workflow (`repo_type` defaults to `auto`, which detects datasets)
-(and `skill_ref` pointing at a branch that carries this script).
+(`skill_ref` defaults to the branch the workflow runs on).
 
 ### Resuming from a Specific Shard
 
