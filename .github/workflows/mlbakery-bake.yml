@@ -16,13 +16,14 @@ on:
         required: false
         default: ''
       repo_type:
-        description: 'HuggingFace repo type'
+        description: 'HuggingFace repo type (auto = detect model vs dataset)'
         required: false
         type: choice
         options:
+          - auto
           - model
           - dataset
-        default: 'model'
+        default: 'auto'
       skill_ref:
         description: 'Git ref to take the mlbakery skill scripts from'
         required: false
@@ -77,6 +78,23 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GHCR_TOKEN }}
 
+      - name: Resolve repo type
+        id: repo
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          MODEL_REPO: ${{ inputs.model_repo }}
+          REPO_TYPE: ${{ inputs.repo_type }}
+        run: |
+          if [ "$REPO_TYPE" = "auto" ] || [ -z "$REPO_TYPE" ]; then
+            REPO_TYPE=$(python3 -c "import os; from huggingface_hub import repo_exists; r=os.environ['MODEL_REPO']; print(next((t for t in ('model','dataset') if repo_exists(r, repo_type=t)), 'none'))")
+            if [ "$REPO_TYPE" = "none" ]; then
+              echo "::error::${MODEL_REPO} not found as a model or dataset repo (check name / HF_TOKEN access)"
+              exit 1
+            fi
+          fi
+          echo "Repo type: ${REPO_TYPE}"
+          echo "type=${REPO_TYPE}" >> "$GITHUB_OUTPUT"
+
       - name: Verify bake prerequisites
         working-directory: goku/mlbakery
         env:
@@ -88,7 +106,7 @@ jobs:
           echo "Docker:"
           docker info 2>&1 | head -3
           echo "Test list_repo_files:"
-          python3 -c "from huggingface_hub import list_repo_files; files=list(list_repo_files('${{ inputs.model_repo }}', repo_type='${{ inputs.repo_type }}')); st=[f for f in files if f.endswith('.safetensors')]; ox=[f for f in files if f.endswith('.onnx')]; print(f'Total: {len(files)} safetensors: {len(st)} onnx: {len(ox)}')"
+          python3 -c "from huggingface_hub import list_repo_files; files=list(list_repo_files('${{ inputs.model_repo }}', repo_type='${{ steps.repo.outputs.type }}')); st=[f for f in files if f.endswith('.safetensors')]; ox=[f for f in files if f.endswith('.onnx')]; print(f'Total: {len(files)} safetensors: {len(st)} onnx: {len(ox)}')"
 
       - name: Run bake
         id: bake
@@ -98,7 +116,7 @@ jobs:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
           ARGS="-m ${{ inputs.model_repo }}"
-          if [ "${{ inputs.repo_type }}" = "dataset" ]; then
+          if [ "${{ steps.repo.outputs.type }}" = "dataset" ]; then
             ARGS="$ARGS -d"
           fi
           if [ "${{ inputs.start_shard }}" != "1" ]; then

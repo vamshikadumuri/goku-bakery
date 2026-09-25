@@ -83,7 +83,7 @@ With `-d`, the whole dataset repo is downloaded (`repo_type="dataset"`) into
 `/datasets/<datasetname>/` of a single image, and pre-push verification checks
 `/datasets/` instead of `/models/`. `-e` patterns are passed as ignore patterns.
 
-From GitHub Actions, run the **MLBakery Bake** workflow with `repo_type: dataset`
+From GitHub Actions, run the **MLBakery Bake** workflow (`repo_type` defaults to `auto`, which detects datasets)
 (and `skill_ref` pointing at a branch that carries this script).
 
 ### Resuming from a Specific Shard
