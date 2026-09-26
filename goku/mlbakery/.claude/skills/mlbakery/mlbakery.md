@@ -86,6 +86,28 @@ With `-d`, the whole dataset repo is downloaded (`repo_type="dataset"`) into
 From GitHub Actions, run the **MLBakery Bake** workflow (`repo_type` defaults to `auto`, which detects datasets)
 (`skill_ref` defaults to the branch the workflow runs on).
 
+### Baking a Dataset Bundle (many datasets → one image)
+
+`scripts/bake_dataset_bundle.py` bakes every source listed in a manifest
+(`datasets/*.json`) into a single image, one source at a time: download → add as
+its own layer at `/datasets/<dir>/` → verify contents → delete the local copy.
+Peak disk ≈ image size + one source. `/datasets/manifest.json` inside the image
+records each source's upstream URL, the PyRIT dataset names it serves, and its status.
+
+```bash
+python3 scripts/bake_dataset_bundle.py -m datasets/pyrit_remote_1.0.1.json [-t TAG] [--only dir1,dir2] [--no-push]
+```
+
+Source types: `hf` (dataset repo, optional `revision` / `allow_patterns`), `github`
+(sparse checkout of `paths` at a pinned `ref`), `url` (plain files), `api` (recorded, never baked).
+Failed sources (e.g. gated HF repos the token can't access) are listed in the summary;
+the image is still pushed with everything that succeeded, and the script exits non-zero.
+
+`datasets/pyrit_remote_1.0.1.json` covers all PyRIT v1.0.1 remote seed datasets except
+`garak_*` → `ghcr.io/vamshikadumuri/mlbakery:pyrit-remote-datasets-1.0.1`.
+
+From GitHub Actions: **MLBakery Bake** with `dataset_manifest: pyrit_remote_1.0.1.json`.
+
 ### Resuming from a Specific Shard
 
 If some shards are already pushed (e.g., shards 1-4), use `-s` and `-e` to skip them:
