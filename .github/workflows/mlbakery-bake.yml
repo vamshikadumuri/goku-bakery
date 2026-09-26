@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       model_repo:
-        description: 'HuggingFace model repo (e.g. Qwen/Qwen2.5-Coder-32B)'
+        description: 'HuggingFace model or dataset repo (e.g. Qwen/Qwen2.5-Coder-32B)'
         required: true
         default: 'Qwen/Qwen2.5-Coder-32B'
       start_shard:
@@ -13,6 +13,27 @@ on:
         default: '1'
       exclude_patterns:
         description: 'Comma-separated exclude patterns (for resuming)'
+        required: false
+        default: ''
+      repo_type:
+        description: 'HuggingFace repo type (auto = detect model vs dataset)'
+        required: false
+        type: choice
+        options:
+          - auto
+          - model
+          - dataset
+        default: 'auto'
+      skill_ref:
+        description: 'Git ref to take the mlbakery skill scripts from (empty = the branch this workflow runs on)'
+        required: false
+        default: ''
+      dataset_manifest:
+        description: 'Bake ONE combined image from a manifest in the skill datasets/ dir, e.g. pyrit_remote_1.0.1.json (model_repo is ignored)'
+        required: false
+        default: ''
+      image_tag:
+        description: 'Tag for the combined dataset image (default: from manifest)'
         required: false
         default: ''
 
@@ -29,18 +50,19 @@ jobs:
       - name: Free up disk space
         run: |
           df -h /
-          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/share/boost
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/share/boost /opt/hostedtoolcache
           sudo apt-get clean
+          sudo docker image prune -af || true
           df -h /
 
-      - name: Checkout vk-dev
+      - name: Checkout skill ref
         uses: actions/checkout@v4
         with:
-          ref: vk-dev
+          ref: ${{ inputs.skill_ref || github.ref }}
 
       - name: Install dependencies
         run: |
-          pip install huggingface_hub hf_transfer
+          pip install huggingface_hub hf_transfer requests
           echo "Python: $(python3 --version) at $(which python3)"
           python3 -c "import huggingface_hub; print('huggingface_hub', huggingface_hub.__version__)"
 
@@ -65,7 +87,26 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GHCR_TOKEN }}
 
+      - name: Resolve repo type
+        id: repo
+        if: inputs.dataset_manifest == ''
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          MODEL_REPO: ${{ inputs.model_repo }}
+          REPO_TYPE: ${{ inputs.repo_type }}
+        run: |
+          if [ "$REPO_TYPE" = "auto" ] || [ -z "$REPO_TYPE" ]; then
+            REPO_TYPE=$(python3 -c "import os; from huggingface_hub import repo_exists; r=os.environ['MODEL_REPO']; print(next((t for t in ('model','dataset') if repo_exists(r, repo_type=t)), 'none'))")
+            if [ "$REPO_TYPE" = "none" ]; then
+              echo "::error::${MODEL_REPO} not found as a model or dataset repo (check name / HF_TOKEN access)"
+              exit 1
+            fi
+          fi
+          echo "Repo type: ${REPO_TYPE}"
+          echo "type=${REPO_TYPE}" >> "$GITHUB_OUTPUT"
+
       - name: Verify bake prerequisites
+        if: inputs.dataset_manifest == ''
         working-directory: goku/mlbakery
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
@@ -76,16 +117,19 @@ jobs:
           echo "Docker:"
           docker info 2>&1 | head -3
           echo "Test list_repo_files:"
-          python3 -c "from huggingface_hub import list_repo_files; files=list(list_repo_files('${{ inputs.model_repo }}')); st=[f for f in files if f.endswith('.safetensors')]; ox=[f for f in files if f.endswith('.onnx')]; print(f'Total: {len(files)} safetensors: {len(st)} onnx: {len(ox)}')"
+          python3 -c "from huggingface_hub import list_repo_files; files=list(list_repo_files('${{ inputs.model_repo }}', repo_type='${{ steps.repo.outputs.type }}')); st=[f for f in files if f.endswith('.safetensors')]; ox=[f for f in files if f.endswith('.onnx')]; print(f'Total: {len(files)} safetensors: {len(st)} onnx: {len(ox)}')"
 
       - name: Run bake
         id: bake
-        continue-on-error: true
+        if: inputs.dataset_manifest == ''
         working-directory: goku/mlbakery
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
           ARGS="-m ${{ inputs.model_repo }}"
+          if [ "${{ steps.repo.outputs.type }}" = "dataset" ]; then
+            ARGS="$ARGS -d"
+          fi
           if [ "${{ inputs.start_shard }}" != "1" ]; then
             ARGS="$ARGS -s ${{ inputs.start_shard }}"
           fi
@@ -93,7 +137,27 @@ jobs:
             ARGS="$ARGS -e '${{ inputs.exclude_patterns }}'"
           fi
           echo "Running bake.sh..."
+          set -o pipefail
           eval bash .claude/skills/mlbakery/scripts/bake.sh $ARGS 2>&1 | tee /tmp/bake.log
+
+      - name: Run dataset bundle bake
+        if: inputs.dataset_manifest != ''
+        working-directory: goku/mlbakery
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_HUB_DISABLE_PROGRESS_BARS: '1'
+          ODIN_API_KEY: ${{ secrets.ODIN_API_KEY }}
+          PROMPTINTEL_API_KEY: ${{ secrets.PROMPTINTEL_API_KEY }}
+          MANIFEST: ${{ inputs.dataset_manifest }}
+          IMAGE_TAG: ${{ inputs.image_tag }}
+        run: |
+          ARGS=(-m ".claude/skills/mlbakery/datasets/${MANIFEST}" -u "${{ github.repository_owner }}")
+          if [ -n "$IMAGE_TAG" ]; then
+            ARGS+=(-t "$IMAGE_TAG")
+          fi
+          df -h /
+          set -o pipefail
+          python3 .claude/skills/mlbakery/scripts/bake_dataset_bundle.py "${ARGS[@]}" 2>&1 | tee /tmp/bake.log
 
       - name: Upload bake log
         if: always()
@@ -103,7 +167,7 @@ jobs:
           if [ -f /tmp/bake.log ]; then
             echo "=== Last 200 lines of bake.log ==="
             tail -200 /tmp/bake.log
-            CONTENT=$(base64 -w 0 /tmp/bake.log | head -c 60000)
+            CONTENT=$(tail -c 45000 /tmp/bake.log | base64 -w 0)
             TIMESTAMP=$(date +%Y%m%d_%H%M%S)
             curl -s -X PUT \
               -H "Authorization: token $GH_TOKEN" \
