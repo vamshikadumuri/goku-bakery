@@ -9,8 +9,10 @@ is pushed once at the end, with /datasets/manifest.json describing every source.
 Source types:
   hf      HF dataset repo (snapshot_download, optional revision/allow_patterns)
   github  sparse checkout of paths at a pinned ref (commit, short sha or branch)
+           (optional url_list: also download every URL in a CSV column, best effort)
   url     plain file downloads
-  api     authenticated live feeds — recorded in the manifest, never baked
+  api     paginated JSON API fetched once at bake time and saved as items.json
+          (key from the env var named by auth_env; skipped, not failed, if unset)
 
 Usage:
   python3 bake_dataset_bundle.py -m ../datasets/pyrit_remote_1.0.1.json [-t TAG] [-u GHCR_USER]
@@ -18,13 +20,17 @@ Usage:
 """
 
 import argparse
+import csv
+import hashlib
 import json
 import os
 import shutil
 import subprocess
 import sys
 import time
+import urllib.parse
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 BASE_DOCKERFILE = """FROM ubuntu:latest
@@ -80,6 +86,71 @@ def fetch_github(src: dict, dest: Path, scratch: Path) -> None:
             else:
                 shutil.copy2(s, d)
         shutil.rmtree(clone, ignore_errors=True)
+    if src.get("url_list"):
+        fetch_url_list(src["url_list"], dest)
+
+
+def fetch_url_list(spec: dict, dest: Path) -> None:
+    """Download every URL in a CSV column (e.g. images referenced by web URL).
+
+    Dead upstream links are recorded in <dir>/index.json rather than failing the source.
+    """
+    with open(dest / spec["csv"], newline="", encoding="utf-8") as f:
+        urls = sorted({row[spec["column"]].strip() for row in csv.DictReader(f) if row.get(spec["column"], "").strip()})
+    out_dir = dest / spec["dir"]
+    out_dir.mkdir(parents=True, exist_ok=True)
+    log(f"  ⬇️  {len(urls)} URLs from {spec['csv']}:{spec['column']}")
+
+    def get(url: str):
+        ext = os.path.splitext(urllib.parse.urlparse(url).path)[1][:8] or ".bin"
+        name = hashlib.sha1(url.encode()).hexdigest() + ext
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (mlbakery)"})
+            with urllib.request.urlopen(req, timeout=60) as r:
+                data = r.read()
+            (out_dir / name).write_bytes(data)
+            return url, name
+        except Exception:
+            return url, None
+
+    with ThreadPoolExecutor(max_workers=32) as pool:
+        index = dict(pool.map(get, urls))
+    (out_dir / "index.json").write_text(json.dumps(index, indent=1))
+    got = sum(1 for v in index.values() if v)
+    log(f"  ↳ {got}/{len(urls)} downloaded ({len(urls) - got} dead upstream links listed in index.json)")
+    if urls and not got:
+        raise RuntimeError(f"none of the {len(urls)} URLs in {spec['csv']} could be downloaded")
+
+
+class SkipSource(Exception):
+    """Source can't be baked in this environment (e.g. no API key); not a failure."""
+
+
+def fetch_api(src: dict, dest: Path) -> None:
+    """Page through an authenticated JSON API and save every item to items.json."""
+    import requests
+    key = os.environ.get(src["auth_env"])
+    if not key:
+        raise SkipSource(f"no API key ({src['auth_env']} repo secret not set)")
+    auth = f"Bearer {key}" if src.get("auth_scheme") == "bearer" else key
+    items, page, pages = [], 1, 1
+    log(f"  ⬇️  API {src['url']}")
+    while page <= pages:
+        r = requests.get(src["url"], headers={"Authorization": auth},
+                         params={**src.get("params", {}), src.get("page_param", "page"): page}, timeout=60)
+        if r.status_code != 200:
+            raise RuntimeError(f"HTTP {r.status_code} from {src['url']} (page {page})")
+        body = r.json()
+        items.extend(body.get(src["items_key"], []))
+        node = body
+        for k in src["pages_key"].split("."):
+            node = node.get(k, {}) if isinstance(node, dict) else {}
+        pages = node if isinstance(node, int) else 1
+        page += 1
+    if not items:
+        raise RuntimeError("API returned no items")
+    (dest / "items.json").write_text(json.dumps(items, indent=1))
+    log(f"  ↳ {len(items)} items from {pages} page(s)")
 
 
 def fetch_url(src: dict, dest: Path) -> None:
@@ -185,16 +256,10 @@ def main() -> int:
         name = src["dir"]
         entry = {"dir": name, "type": src["type"], "upstream": upstream_of(src),
                  "pyrit_datasets": src.get("pyrit_datasets", [])}
-        for k in ("repo", "revision", "checkouts", "files", "allow_patterns", "note"):
+        for k in ("repo", "revision", "checkouts", "files", "url", "allow_patterns", "note"):
             if k in src:
                 entry[k] = src[k]
         log(f"\n📦 [{n}/{len(sources)}] {name}  ({', '.join(entry['pyrit_datasets'])})")
-
-        if src["type"] == "api":
-            entry["status"] = f"skipped: authenticated API ({src.get('requires_env', 'API key')})"
-            log(f"  ⏭️  {entry['status']}")
-            results.append(entry)
-            continue
 
         ctx = work / "ctx"
         shutil.rmtree(ctx, ignore_errors=True)
@@ -207,6 +272,8 @@ def main() -> int:
                 fetch_github(src, dest, work)
             elif src["type"] == "url":
                 fetch_url(src, dest)
+            elif src["type"] == "api":
+                fetch_api(src, dest)
             else:
                 raise ValueError(f"unknown source type {src['type']!r}")
             expected = file_list(dest, ctx)
@@ -216,6 +283,9 @@ def main() -> int:
             size = verify_layer(image, name, expected)
             entry.update(status="ok", files=len(expected), size=size)
             log(f"  ✅ {len(expected)} files, {size} in /datasets/{name}/")
+        except SkipSource as exc:
+            entry["status"] = f"skipped: {exc}"
+            log(f"  ⏭️  {entry['status']}")
         except Exception as exc:
             lines = [l for l in str(getattr(exc, "stderr", None) or exc).splitlines() if l.strip()]
             key = [l for l in lines if "fatal:" in l or "Error" in l]
@@ -229,7 +299,7 @@ def main() -> int:
     failed = [r for r in results if r["status"].startswith("failed")]
     skipped = [r for r in results if r["status"].startswith("skipped")]
 
-    bundle = {k: manifest[k] for k in ("name", "description", "pyrit_version", "pyrit_loader_source", "excluded")
+    bundle = {k: manifest[k] for k in ("name", "description", "pyrit_version", "pyrit_loader_source")
               if k in manifest}
     bundle.update(image=image, baked_at=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), sources=results)
     ctx = work / "ctx"

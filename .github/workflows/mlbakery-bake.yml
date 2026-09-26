@@ -62,7 +62,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install huggingface_hub hf_transfer
+          pip install huggingface_hub hf_transfer requests
           echo "Python: $(python3 --version) at $(which python3)"
           python3 -c "import huggingface_hub; print('huggingface_hub', huggingface_hub.__version__)"
 
@@ -146,6 +146,8 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           HF_HUB_DISABLE_PROGRESS_BARS: '1'
+          ODIN_API_KEY: ${{ secrets.ODIN_API_KEY }}
+          PROMPTINTEL_API_KEY: ${{ secrets.PROMPTINTEL_API_KEY }}
           MANIFEST: ${{ inputs.dataset_manifest }}
           IMAGE_TAG: ${{ inputs.image_tag }}
         run: |

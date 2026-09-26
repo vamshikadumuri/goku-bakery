@@ -1,102 +1,697 @@
 {
   "name": "pyrit-remote-datasets",
   "tag": "pyrit-remote-datasets-1.0.1",
-  "description": "Upstream sources of every PyRIT v1.0.1 remote seed dataset (pyrit/datasets/seed_datasets/remote), excluding garak_*.",
+  "description": "Upstream sources of all 69 PyRIT v1.0.1 seed datasets that are listed as remote (68 remote loaders + jailbreak_templates).",
   "pyrit_version": "1.0.1",
   "pyrit_loader_source": "https://github.com/microsoft/PyRIT/tree/v1.0.1/pyrit/datasets/seed_datasets/remote",
-  "excluded": {
-    "garak_*": "excluded on request",
-    "jailbreak_templates": "local dataset shipped inside the PyRIT package, not remote"
-  },
   "sources": [
-    {"dir": "nvidia-Aegis-AI-Content-Safety-Dataset-2.0", "type": "hf", "repo": "nvidia/Aegis-AI-Content-Safety-Dataset-2.0", "pyrit_datasets": ["aegis_content_safety"]},
-    {"dir": "CohereForAI-aya_redteaming", "type": "hf", "repo": "CohereForAI/aya_redteaming", "pyrit_datasets": ["aya_redteaming"]},
-    {"dir": "Babelscape-ALERT", "type": "hf", "repo": "Babelscape/ALERT", "pyrit_datasets": ["babelscape_alert"]},
-    {"dir": "PKU-Alignment-BeaverTails", "type": "hf", "repo": "PKU-Alignment/BeaverTails", "pyrit_datasets": ["beaver_tails"]},
-    {"dir": "declare-lab-CategoricalHarmfulQA", "type": "hf", "repo": "declare-lab/CategoricalHarmfulQA", "pyrit_datasets": ["categorical_harmful_qa"]},
-    {"dir": "Psychotherapy-LLM-CBT-Bench", "type": "hf", "repo": "Psychotherapy-LLM/CBT-Bench", "pyrit_datasets": ["cbt_bench"]},
-    {"dir": "promptfoo-CCP-sensitive-prompts", "type": "hf", "repo": "promptfoo/CCP-sensitive-prompts", "pyrit_datasets": ["ccp_sensitive_prompts"]},
-    {"dir": "allenai-coconot", "type": "hf", "repo": "allenai/coconot", "pyrit_datasets": ["coconot_contrast", "coconot_refusal"]},
-    {"dir": "apart-darkbench", "type": "hf", "repo": "apart/darkbench", "pyrit_datasets": ["dark_bench"]},
-    {"dir": "katielink-EquityMedQA", "type": "hf", "repo": "katielink/EquityMedQA", "pyrit_datasets": ["equitymedqa"]},
-    {"dir": "TrustAIRLab-forbidden_question_set", "type": "hf", "repo": "TrustAIRLab/forbidden_question_set", "pyrit_datasets": ["forbidden_questions"]},
-    {"dir": "declare-lab-HarmfulQA", "type": "hf", "repo": "declare-lab/HarmfulQA", "pyrit_datasets": ["harmful_qa"]},
-    {"dir": "walledai-HiXSTest", "type": "hf", "repo": "walledai/HiXSTest", "pyrit_datasets": ["hixstest"]},
-    {"dir": "JailbreakV-28K-JailBreakV-28k", "type": "hf", "repo": "JailbreakV-28K/JailBreakV-28k", "pyrit_datasets": ["jailbreakv_28k", "jailbreakv_redteam_2k"],
-     "allow_patterns": ["*.csv", "*.json", "*.md"],
-     "note": "Text/metadata only. The ~15 GiB JailBreakV_28K.zip image bundle is distributed via a Google Drive form and is not included."},
-    {"dir": "JailbreakBench-JBB-Behaviors", "type": "hf", "repo": "JailbreakBench/JBB-Behaviors", "pyrit_datasets": ["jbb_behaviors"]},
-    {"dir": "LibrAI-do-not-answer", "type": "hf", "repo": "LibrAI/do-not-answer", "pyrit_datasets": ["librai_do_not_answer"]},
-    {"dir": "LLM-LAT-harmful-dataset", "type": "hf", "repo": "LLM-LAT/harmful-dataset", "pyrit_datasets": ["llm_lat_harmful"]},
-    {"dir": "PKU-Alignment-MM-SafetyBench", "type": "hf", "repo": "PKU-Alignment/MM-SafetyBench", "pyrit_datasets": ["mm_safetybench"]},
-    {"dir": "isXinLiu-MM-SafetyBench", "type": "github", "repo": "isXinLiu/MM-SafetyBench", "pyrit_datasets": ["mm_safetybench"],
-     "checkouts": [{"ref": "b80eedea3db312c09ded2082813390f68e750ef3", "paths": ["TinyVersion_ID_List.json"]}]},
-    {"dir": "SALT-NLP-MIC", "type": "hf", "repo": "SALT-NLP/MIC", "pyrit_datasets": ["moral_integrity_corpus"]},
-    {"dir": "felfri-MSTS", "type": "hf", "repo": "felfri/MSTS", "pyrit_datasets": ["msts"]},
-    {"dir": "bench-llm-OR-Bench", "type": "hf", "repo": "bench-llm/OR-Bench", "pyrit_datasets": ["or_bench_80k", "or_bench_hard", "or_bench_toxic"]},
-    {"dir": "PKU-Alignment-PKU-SafeRLHF", "type": "hf", "repo": "PKU-Alignment/PKU-SafeRLHF", "pyrit_datasets": ["pku_safe_rlhf"]},
-    {"dir": "svannie678-red_team_repo_social_bias_prompts", "type": "hf", "repo": "svannie678/red_team_repo_social_bias_prompts", "pyrit_datasets": ["red_team_social_bias"]},
-    {"dir": "walledai-SaladBench", "type": "hf", "repo": "walledai/SaladBench", "pyrit_datasets": ["salad_bench"]},
-    {"dir": "walledai-SGXSTest", "type": "hf", "repo": "walledai/SGXSTest", "pyrit_datasets": ["sgxstest"]},
-    {"dir": "Bertievidgen-SimpleSafetyTests", "type": "hf", "repo": "Bertievidgen/SimpleSafetyTests", "pyrit_datasets": ["simple_safety_tests"]},
-    {"dir": "sinwang-SIUO", "type": "hf", "repo": "sinwang/SIUO", "revision": "024e80a01795376b9fed12f8073a12f2275f22ee", "pyrit_datasets": ["siuo"]},
-    {"dir": "sorry-bench-sorry-bench-202503", "type": "hf", "repo": "sorry-bench/sorry-bench-202503", "pyrit_datasets": ["sorry_bench"]},
-    {"dir": "SOSBench-SOSBench", "type": "hf", "repo": "SOSBench/SOSBench", "pyrit_datasets": ["sosbench"]},
-    {"dir": "walledai-TDC23-RedTeaming", "type": "hf", "repo": "walledai/TDC23-RedTeaming", "pyrit_datasets": ["tdc23_redteaming"]},
-    {"dir": "lmsys-toxic-chat", "type": "hf", "repo": "lmsys/toxic-chat", "pyrit_datasets": ["toxic_chat"]},
-    {"dir": "ys-zong-VLGuard", "type": "hf", "repo": "ys-zong/VLGuard", "pyrit_datasets": ["vlguard"],
-     "allow_patterns": ["test.json", "test.zip", "README.md"],
-     "note": "Test split only (what PyRIT's loader uses); train.zip is not included."},
-    {"dir": "allenai-wildguardmix", "type": "hf", "repo": "allenai/wildguardmix", "pyrit_datasets": ["wildguardmix"]},
-    {"dir": "AIM-Intelligence-XL-SafetyBench", "type": "hf", "repo": "AIM-Intelligence/XL-SafetyBench", "pyrit_datasets": ["xl_safety_bench_cultural", "xl_safety_bench_jailbreak", "xl_safety_bench_jailbreak_objectives"]},
-
-    {"dir": "Agent-Threat-Rule-agent-threat-rules", "type": "github", "repo": "Agent-Threat-Rule/agent-threat-rules", "pyrit_datasets": ["agent_threat_rules"],
-     "checkouts": [{"ref": "db793f9", "paths": ["data/autoresearch/adversarial-samples.json"]}]},
-    {"dir": "Social-AI-Studio-ComicJailbreak", "type": "github", "repo": "Social-AI-Studio/ComicJailbreak", "pyrit_datasets": ["comic_jailbreak"],
-     "checkouts": [
-       {"ref": "7361c6cdbbff44331e5830a84b799476d354a968", "paths": ["dataset.csv"]},
-       {"ref": "5fca32012ccac34dbd080df247926366249b4fb1", "paths": ["template/"]}
-     ]},
-    {"dir": "SALT-NLP-chain-of-thought-bias", "type": "github", "repo": "SALT-NLP/chain-of-thought-bias", "pyrit_datasets": ["dangerous_qa"],
-     "checkouts": [{"ref": "445568d3b73f81a9054f51c739172186d5648157", "paths": ["data/dangerous-q/toxic_outs.json"]}]},
-    {"dir": "AI-secure-DecodingTrust", "type": "github", "repo": "AI-secure/DecodingTrust", "pyrit_datasets": ["decoding_trust_toxicity"],
-     "checkouts": [{"ref": "161ae8321ced62f45fcd9ceb412e05b47c603cd4", "paths": ["data/toxicity/user_prompts/toxic.jsonl", "data/toxicity/user_prompts/nontoxic.jsonl"]}]},
-    {"dir": "ThuCCSLab-FigStep", "type": "github", "repo": "ThuCCSLab/FigStep", "pyrit_datasets": ["figstep"],
-     "checkouts": [{"ref": "0861b17b3d67887c06ee3534ec65b3012f9becb7", "paths": ["data/"]}]},
-    {"dir": "centerforaisafety-HarmBench", "type": "github", "repo": "centerforaisafety/HarmBench", "pyrit_datasets": ["harmbench", "harmbench_multimodal"],
-     "checkouts": [{"ref": "c0423b9", "paths": [
-       "data/behavior_datasets/harmbench_behaviors_text_all.csv",
-       "data/behavior_datasets/harmbench_behaviors_multimodal_all.csv",
-       "data/multimodal_behavior_images/"
-     ]}]},
-    {"dir": "AI4LIFE-GROUP-med-safety-bench", "type": "github", "repo": "AI4LIFE-GROUP/med-safety-bench", "pyrit_datasets": ["medsafetybench"],
-     "checkouts": [{"ref": "main", "paths": ["datasets/"]}]},
-    {"dir": "apple-ml-vlsu", "type": "github", "repo": "apple/ml-vlsu", "pyrit_datasets": ["ml_vlsu"],
-     "checkouts": [{"ref": "main", "paths": ["data/VLSU.csv"]}],
-     "note": "CSV only. Images are referenced by arbitrary web URLs and fetched by PyRIT at load time."},
-    {"dir": "mlcommons-ailuminate", "type": "github", "repo": "mlcommons/ailuminate", "pyrit_datasets": ["mlcommons_ailuminate"],
-     "checkouts": [{"ref": "main", "paths": ["airr_official_1.0_demo_en_us_prompt_set_release.csv"]}]},
-    {"dir": "xirui-li-MOSSBench", "type": "github", "repo": "xirui-li/MOSSBench", "pyrit_datasets": ["mossbench"],
-     "checkouts": [{"ref": "8d68b0614b39d8990a508e03d99975832f399db2", "paths": ["data/images_information/information.json", "data/images/"]}]},
-    {"dir": "CarsonDon-Multilingual-Vuln-LLMs", "type": "github", "repo": "CarsonDon/Multilingual-Vuln-LLMs", "pyrit_datasets": ["multilingual_vulnerability"],
-     "checkouts": [{"ref": "main", "paths": ["prompts/allprompt.csv"]}]},
-    {"dir": "alexandrasouly-strongreject", "type": "github", "repo": "alexandrasouly/strongreject", "pyrit_datasets": ["strong_reject"],
-     "checkouts": [{"ref": "3432b2d696b428f242bd507df96d80f686571d5e", "paths": ["strongreject_dataset/strongreject_dataset.csv"]}]},
-    {"dir": "YoutingWang-MM-SafetyBench", "type": "github", "repo": "YoutingWang/MM-SafetyBench", "pyrit_datasets": ["visual_leak_bench"],
-     "checkouts": [{"ref": "main", "paths": ["mm_safety_dataset/v2_1000/"]}]},
-    {"dir": "paul-rottger-exaggerated-safety", "type": "github", "repo": "paul-rottger/exaggerated-safety", "pyrit_datasets": ["xstest"],
-     "checkouts": [{"ref": "a3bb396", "paths": ["xstest_v2_prompts.csv"]}]},
-
-    {"dir": "zenodo-15482694", "type": "url", "pyrit_datasets": ["transphobia_awareness"], "upstream": "https://zenodo.org/records/15482694",
-     "files": [
-       {"url": "https://zenodo.org/records/15482694/files/Ratings.xlsx?download=1", "path": "Ratings.xlsx"},
-       {"url": "https://zenodo.org/records/15482694/files/Question_Response_Pairs.xlsx?download=1", "path": "Question_Response_Pairs.xlsx"},
-       {"url": "https://zenodo.org/records/15482694/files/Quora%20Question%20List.xlsx?download=1", "path": "Quora Question List.xlsx"}
-     ]},
-
-    {"dir": "0din-threatfeed", "type": "api", "pyrit_datasets": ["0din_threatfeed"], "upstream": "https://0din.ai/api/v1/threatfeed/", "requires_env": "0DIN_API_KEY",
-     "note": "Authenticated live API feed; not baked."},
-    {"dir": "promptintel", "type": "api", "pyrit_datasets": ["promptintel"], "upstream": "https://api.promptintel.novahunting.ai/api/v1/prompts", "requires_env": "PROMPTINTEL_API_KEY",
-     "note": "Authenticated live API feed; not baked."}
+    {
+      "dir": "nvidia-Aegis-AI-Content-Safety-Dataset-2.0",
+      "type": "hf",
+      "repo": "nvidia/Aegis-AI-Content-Safety-Dataset-2.0",
+      "pyrit_datasets": [
+        "aegis_content_safety"
+      ]
+    },
+    {
+      "dir": "CohereForAI-aya_redteaming",
+      "type": "hf",
+      "repo": "CohereForAI/aya_redteaming",
+      "pyrit_datasets": [
+        "aya_redteaming"
+      ]
+    },
+    {
+      "dir": "Babelscape-ALERT",
+      "type": "hf",
+      "repo": "Babelscape/ALERT",
+      "pyrit_datasets": [
+        "babelscape_alert"
+      ]
+    },
+    {
+      "dir": "PKU-Alignment-BeaverTails",
+      "type": "hf",
+      "repo": "PKU-Alignment/BeaverTails",
+      "pyrit_datasets": [
+        "beaver_tails"
+      ]
+    },
+    {
+      "dir": "declare-lab-CategoricalHarmfulQA",
+      "type": "hf",
+      "repo": "declare-lab/CategoricalHarmfulQA",
+      "pyrit_datasets": [
+        "categorical_harmful_qa"
+      ]
+    },
+    {
+      "dir": "Psychotherapy-LLM-CBT-Bench",
+      "type": "hf",
+      "repo": "Psychotherapy-LLM/CBT-Bench",
+      "pyrit_datasets": [
+        "cbt_bench"
+      ]
+    },
+    {
+      "dir": "promptfoo-CCP-sensitive-prompts",
+      "type": "hf",
+      "repo": "promptfoo/CCP-sensitive-prompts",
+      "pyrit_datasets": [
+        "ccp_sensitive_prompts"
+      ]
+    },
+    {
+      "dir": "allenai-coconot",
+      "type": "hf",
+      "repo": "allenai/coconot",
+      "pyrit_datasets": [
+        "coconot_contrast",
+        "coconot_refusal"
+      ]
+    },
+    {
+      "dir": "apart-darkbench",
+      "type": "hf",
+      "repo": "apart/darkbench",
+      "pyrit_datasets": [
+        "dark_bench"
+      ]
+    },
+    {
+      "dir": "katielink-EquityMedQA",
+      "type": "hf",
+      "repo": "katielink/EquityMedQA",
+      "pyrit_datasets": [
+        "equitymedqa"
+      ]
+    },
+    {
+      "dir": "TrustAIRLab-forbidden_question_set",
+      "type": "hf",
+      "repo": "TrustAIRLab/forbidden_question_set",
+      "pyrit_datasets": [
+        "forbidden_questions"
+      ]
+    },
+    {
+      "dir": "declare-lab-HarmfulQA",
+      "type": "hf",
+      "repo": "declare-lab/HarmfulQA",
+      "pyrit_datasets": [
+        "harmful_qa"
+      ]
+    },
+    {
+      "dir": "walledai-HiXSTest",
+      "type": "hf",
+      "repo": "walledai/HiXSTest",
+      "pyrit_datasets": [
+        "hixstest"
+      ]
+    },
+    {
+      "dir": "JailbreakV-28K-JailBreakV-28k",
+      "type": "hf",
+      "repo": "JailbreakV-28K/JailBreakV-28k",
+      "pyrit_datasets": [
+        "jailbreakv_28k",
+        "jailbreakv_redteam_2k"
+      ],
+      "note": "Full HF repo. PyRIT's loader additionally expects JailBreakV_28K.zip (~15 GiB of images), which upstream distributes only via a Google Drive form, not via any downloadable URL."
+    },
+    {
+      "dir": "JailbreakBench-JBB-Behaviors",
+      "type": "hf",
+      "repo": "JailbreakBench/JBB-Behaviors",
+      "pyrit_datasets": [
+        "jbb_behaviors"
+      ]
+    },
+    {
+      "dir": "LibrAI-do-not-answer",
+      "type": "hf",
+      "repo": "LibrAI/do-not-answer",
+      "pyrit_datasets": [
+        "librai_do_not_answer"
+      ]
+    },
+    {
+      "dir": "LLM-LAT-harmful-dataset",
+      "type": "hf",
+      "repo": "LLM-LAT/harmful-dataset",
+      "pyrit_datasets": [
+        "llm_lat_harmful"
+      ]
+    },
+    {
+      "dir": "PKU-Alignment-MM-SafetyBench",
+      "type": "hf",
+      "repo": "PKU-Alignment/MM-SafetyBench",
+      "pyrit_datasets": [
+        "mm_safetybench"
+      ]
+    },
+    {
+      "dir": "isXinLiu-MM-SafetyBench",
+      "type": "github",
+      "repo": "isXinLiu/MM-SafetyBench",
+      "pyrit_datasets": [
+        "mm_safetybench"
+      ],
+      "checkouts": [
+        {
+          "ref": "b80eedea3db312c09ded2082813390f68e750ef3",
+          "paths": [
+            "TinyVersion_ID_List.json"
+          ]
+        }
+      ]
+    },
+    {
+      "dir": "SALT-NLP-MIC",
+      "type": "hf",
+      "repo": "SALT-NLP/MIC",
+      "pyrit_datasets": [
+        "moral_integrity_corpus"
+      ]
+    },
+    {
+      "dir": "felfri-MSTS",
+      "type": "hf",
+      "repo": "felfri/MSTS",
+      "pyrit_datasets": [
+        "msts"
+      ]
+    },
+    {
+      "dir": "bench-llm-OR-Bench",
+      "type": "hf",
+      "repo": "bench-llm/OR-Bench",
+      "pyrit_datasets": [
+        "or_bench_80k",
+        "or_bench_hard",
+        "or_bench_toxic"
+      ]
+    },
+    {
+      "dir": "PKU-Alignment-PKU-SafeRLHF",
+      "type": "hf",
+      "repo": "PKU-Alignment/PKU-SafeRLHF",
+      "pyrit_datasets": [
+        "pku_safe_rlhf"
+      ]
+    },
+    {
+      "dir": "svannie678-red_team_repo_social_bias_prompts",
+      "type": "hf",
+      "repo": "svannie678/red_team_repo_social_bias_prompts",
+      "pyrit_datasets": [
+        "red_team_social_bias"
+      ]
+    },
+    {
+      "dir": "walledai-SaladBench",
+      "type": "hf",
+      "repo": "walledai/SaladBench",
+      "pyrit_datasets": [
+        "salad_bench"
+      ]
+    },
+    {
+      "dir": "walledai-SGXSTest",
+      "type": "hf",
+      "repo": "walledai/SGXSTest",
+      "pyrit_datasets": [
+        "sgxstest"
+      ]
+    },
+    {
+      "dir": "Bertievidgen-SimpleSafetyTests",
+      "type": "hf",
+      "repo": "Bertievidgen/SimpleSafetyTests",
+      "pyrit_datasets": [
+        "simple_safety_tests"
+      ]
+    },
+    {
+      "dir": "sinwang-SIUO",
+      "type": "hf",
+      "repo": "sinwang/SIUO",
+      "revision": "024e80a01795376b9fed12f8073a12f2275f22ee",
+      "pyrit_datasets": [
+        "siuo"
+      ]
+    },
+    {
+      "dir": "sorry-bench-sorry-bench-202503",
+      "type": "hf",
+      "repo": "sorry-bench/sorry-bench-202503",
+      "pyrit_datasets": [
+        "sorry_bench"
+      ]
+    },
+    {
+      "dir": "SOSBench-SOSBench",
+      "type": "hf",
+      "repo": "SOSBench/SOSBench",
+      "pyrit_datasets": [
+        "sosbench"
+      ]
+    },
+    {
+      "dir": "walledai-TDC23-RedTeaming",
+      "type": "hf",
+      "repo": "walledai/TDC23-RedTeaming",
+      "pyrit_datasets": [
+        "tdc23_redteaming"
+      ]
+    },
+    {
+      "dir": "lmsys-toxic-chat",
+      "type": "hf",
+      "repo": "lmsys/toxic-chat",
+      "pyrit_datasets": [
+        "toxic_chat"
+      ]
+    },
+    {
+      "dir": "ys-zong-VLGuard",
+      "type": "hf",
+      "repo": "ys-zong/VLGuard",
+      "pyrit_datasets": [
+        "vlguard"
+      ]
+    },
+    {
+      "dir": "allenai-wildguardmix",
+      "type": "hf",
+      "repo": "allenai/wildguardmix",
+      "pyrit_datasets": [
+        "wildguardmix"
+      ]
+    },
+    {
+      "dir": "AIM-Intelligence-XL-SafetyBench",
+      "type": "hf",
+      "repo": "AIM-Intelligence/XL-SafetyBench",
+      "pyrit_datasets": [
+        "xl_safety_bench_cultural",
+        "xl_safety_bench_jailbreak",
+        "xl_safety_bench_jailbreak_objectives"
+      ]
+    },
+    {
+      "dir": "Agent-Threat-Rule-agent-threat-rules",
+      "type": "github",
+      "repo": "Agent-Threat-Rule/agent-threat-rules",
+      "pyrit_datasets": [
+        "agent_threat_rules"
+      ],
+      "checkouts": [
+        {
+          "ref": "db793f9",
+          "paths": [
+            "data/autoresearch/adversarial-samples.json"
+          ]
+        }
+      ]
+    },
+    {
+      "dir": "Social-AI-Studio-ComicJailbreak",
+      "type": "github",
+      "repo": "Social-AI-Studio/ComicJailbreak",
+      "pyrit_datasets": [
+        "comic_jailbreak"
+      ],
+      "checkouts": [
+        {
+          "ref": "7361c6cdbbff44331e5830a84b799476d354a968",
+          "paths": [
+            "dataset.csv"
+          ]
+        },
+        {
+          "ref": "5fca32012ccac34dbd080df247926366249b4fb1",
+          "paths": [
+            "template/"
+          ]
+        }
+      ]
+    },
+    {
+      "dir": "SALT-NLP-chain-of-thought-bias",
+      "type": "github",
+      "repo": "SALT-NLP/chain-of-thought-bias",
+      "pyrit_datasets": [
+        "dangerous_qa"
+      ],
+      "checkouts": [
+        {
+          "ref": "445568d3b73f81a9054f51c739172186d5648157",
+          "paths": [
+            "data/dangerous-q/toxic_outs.json"
+          ]
+        }
+      ]
+    },
+    {
+      "dir": "AI-secure-DecodingTrust",
+      "type": "github",
+      "repo": "AI-secure/DecodingTrust",
+      "pyrit_datasets": [
+        "decoding_trust_toxicity"
+      ],
+      "checkouts": [
+        {
+          "ref": "161ae8321ced62f45fcd9ceb412e05b47c603cd4",
+          "paths": [
+            "data/toxicity/user_prompts/toxic.jsonl",
+            "data/toxicity/user_prompts/nontoxic.jsonl"
+          ]
+        }
+      ]
+    },
+    {
+      "dir": "ThuCCSLab-FigStep",
+      "type": "github",
+      "repo": "ThuCCSLab/FigStep",
+      "pyrit_datasets": [
+        "figstep"
+      ],
+      "checkouts": [
+        {
+          "ref": "0861b17b3d67887c06ee3534ec65b3012f9becb7",
+          "paths": [
+            "data/"
+          ]
+        }
+      ]
+    },
+    {
+      "dir": "centerforaisafety-HarmBench",
+      "type": "github",
+      "repo": "centerforaisafety/HarmBench",
+      "pyrit_datasets": [
+        "harmbench",
+        "harmbench_multimodal"
+      ],
+      "checkouts": [
+        {
+          "ref": "c0423b9",
+          "paths": [
+            "data/behavior_datasets/harmbench_behaviors_text_all.csv",
+            "data/behavior_datasets/harmbench_behaviors_multimodal_all.csv",
+            "data/multimodal_behavior_images/"
+          ]
+        }
+      ]
+    },
+    {
+      "dir": "AI4LIFE-GROUP-med-safety-bench",
+      "type": "github",
+      "repo": "AI4LIFE-GROUP/med-safety-bench",
+      "pyrit_datasets": [
+        "medsafetybench"
+      ],
+      "checkouts": [
+        {
+          "ref": "main",
+          "paths": [
+            "datasets/"
+          ]
+        }
+      ]
+    },
+    {
+      "dir": "apple-ml-vlsu",
+      "type": "github",
+      "repo": "apple/ml-vlsu",
+      "pyrit_datasets": [
+        "ml_vlsu"
+      ],
+      "checkouts": [
+        {
+          "ref": "main",
+          "paths": [
+            "data/VLSU.csv"
+          ]
+        }
+      ],
+      "url_list": {
+        "csv": "data/VLSU.csv",
+        "column": "web_path",
+        "dir": "images"
+      }
+    },
+    {
+      "dir": "mlcommons-ailuminate",
+      "type": "github",
+      "repo": "mlcommons/ailuminate",
+      "pyrit_datasets": [
+        "mlcommons_ailuminate"
+      ],
+      "checkouts": [
+        {
+          "ref": "main",
+          "paths": [
+            "airr_official_1.0_demo_en_us_prompt_set_release.csv"
+          ]
+        }
+      ]
+    },
+    {
+      "dir": "xirui-li-MOSSBench",
+      "type": "github",
+      "repo": "xirui-li/MOSSBench",
+      "pyrit_datasets": [
+        "mossbench"
+      ],
+      "checkouts": [
+        {
+          "ref": "8d68b0614b39d8990a508e03d99975832f399db2",
+          "paths": [
+            "data/images_information/information.json",
+            "data/images/"
+          ]
+        }
+      ]
+    },
+    {
+      "dir": "CarsonDon-Multilingual-Vuln-LLMs",
+      "type": "github",
+      "repo": "CarsonDon/Multilingual-Vuln-LLMs",
+      "pyrit_datasets": [
+        "multilingual_vulnerability"
+      ],
+      "checkouts": [
+        {
+          "ref": "main",
+          "paths": [
+            "prompts/allprompt.csv"
+          ]
+        }
+      ]
+    },
+    {
+      "dir": "alexandrasouly-strongreject",
+      "type": "github",
+      "repo": "alexandrasouly/strongreject",
+      "pyrit_datasets": [
+        "strong_reject"
+      ],
+      "checkouts": [
+        {
+          "ref": "3432b2d696b428f242bd507df96d80f686571d5e",
+          "paths": [
+            "strongreject_dataset/strongreject_dataset.csv"
+          ]
+        }
+      ]
+    },
+    {
+      "dir": "YoutingWang-MM-SafetyBench",
+      "type": "github",
+      "repo": "YoutingWang/MM-SafetyBench",
+      "pyrit_datasets": [
+        "visual_leak_bench"
+      ],
+      "checkouts": [
+        {
+          "ref": "main",
+          "paths": [
+            "mm_safety_dataset/v2_1000/"
+          ]
+        }
+      ]
+    },
+    {
+      "dir": "paul-rottger-exaggerated-safety",
+      "type": "github",
+      "repo": "paul-rottger/exaggerated-safety",
+      "pyrit_datasets": [
+        "xstest"
+      ],
+      "checkouts": [
+        {
+          "ref": "a3bb396",
+          "paths": [
+            "xstest_v2_prompts.csv"
+          ]
+        }
+      ]
+    },
+    {
+      "dir": "zenodo-15482694",
+      "type": "url",
+      "pyrit_datasets": [
+        "transphobia_awareness"
+      ],
+      "upstream": "https://zenodo.org/records/15482694",
+      "files": [
+        {
+          "url": "https://zenodo.org/records/15482694/files/Ratings.xlsx?download=1",
+          "path": "Ratings.xlsx"
+        },
+        {
+          "url": "https://zenodo.org/records/15482694/files/Question_Response_Pairs.xlsx?download=1",
+          "path": "Question_Response_Pairs.xlsx"
+        },
+        {
+          "url": "https://zenodo.org/records/15482694/files/Quora%20Question%20List.xlsx?download=1",
+          "path": "Quora Question List.xlsx"
+        }
+      ]
+    },
+    {
+      "dir": "garak-llm-audio_achilles_heel",
+      "type": "hf",
+      "repo": "garak-llm/audio_achilles_heel",
+      "pyrit_datasets": [
+        "garak_audio_achilles_heel"
+      ]
+    },
+    {
+      "dir": "garak-llm-crates-20250307",
+      "type": "hf",
+      "repo": "garak-llm/crates-20250307",
+      "pyrit_datasets": [
+        "garak_crates_packages"
+      ]
+    },
+    {
+      "dir": "garak-llm-dart-20250811",
+      "type": "hf",
+      "repo": "garak-llm/dart-20250811",
+      "pyrit_datasets": [
+        "garak_dart_packages"
+      ]
+    },
+    {
+      "dir": "garak-llm-drh-System-Prompt-processed",
+      "type": "hf",
+      "repo": "garak-llm/drh-System-Prompt-processed",
+      "pyrit_datasets": [
+        "garak_drh_system_prompts"
+      ]
+    },
+    {
+      "dir": "garak-llm-npm-20241031",
+      "type": "hf",
+      "repo": "garak-llm/npm-20241031",
+      "pyrit_datasets": [
+        "garak_npm_packages"
+      ]
+    },
+    {
+      "dir": "garak-llm-perl-20250811",
+      "type": "hf",
+      "repo": "garak-llm/perl-20250811",
+      "pyrit_datasets": [
+        "garak_perl_packages"
+      ]
+    },
+    {
+      "dir": "garak-llm-pypi-20241031",
+      "type": "hf",
+      "repo": "garak-llm/pypi-20241031",
+      "pyrit_datasets": [
+        "garak_pypi_packages"
+      ]
+    },
+    {
+      "dir": "garak-llm-raku-20250811",
+      "type": "hf",
+      "repo": "garak-llm/raku-20250811",
+      "pyrit_datasets": [
+        "garak_raku_packages"
+      ]
+    },
+    {
+      "dir": "garak-llm-rubygems-20241031",
+      "type": "hf",
+      "repo": "garak-llm/rubygems-20241031",
+      "pyrit_datasets": [
+        "garak_rubygems_packages"
+      ]
+    },
+    {
+      "dir": "garak-llm-tm-system_prompt",
+      "type": "hf",
+      "repo": "garak-llm/tm-system_prompt",
+      "pyrit_datasets": [
+        "garak_tm_system_prompts"
+      ]
+    },
+    {
+      "dir": "microsoft-PyRIT-jailbreak-templates",
+      "type": "github",
+      "repo": "microsoft/PyRIT",
+      "pyrit_datasets": [
+        "jailbreak_templates"
+      ],
+      "checkouts": [
+        {
+          "ref": "v1.0.1",
+          "paths": [
+            "pyrit/datasets/jailbreak/templates/"
+          ]
+        }
+      ],
+      "note": "Shipped inside the PyRIT package; baked from the v1.0.1 tag for completeness."
+    },
+    {
+      "dir": "0din-threatfeed",
+      "type": "api",
+      "pyrit_datasets": [
+        "0din_threatfeed"
+      ],
+      "upstream": "https://0din.ai/api/v1/threatfeed/",
+      "note": "PyRIT reads the key from 0DIN_API_KEY; the workflow maps repo secret ODIN_API_KEY (secret names can't start with a digit).",
+      "url": "https://0din.ai/api/v1/threatfeed/",
+      "auth_env": "ODIN_API_KEY",
+      "auth_scheme": "raw",
+      "params": {
+        "per_page": 100
+      },
+      "items_key": "threat_feeds",
+      "pages_key": "total_pages"
+    },
+    {
+      "dir": "promptintel",
+      "type": "api",
+      "pyrit_datasets": [
+        "promptintel"
+      ],
+      "upstream": "https://api.promptintel.novahunting.ai/api/v1/prompts",
+      "url": "https://api.promptintel.novahunting.ai/api/v1/prompts",
+      "auth_env": "PROMPTINTEL_API_KEY",
+      "auth_scheme": "bearer",
+      "params": {
+        "limit": 100
+      },
+      "items_key": "data",
+      "pages_key": "pagination.pages"
+    }
   ]
 }

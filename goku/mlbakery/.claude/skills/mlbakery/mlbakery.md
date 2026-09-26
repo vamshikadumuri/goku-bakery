@@ -99,12 +99,15 @@ python3 scripts/bake_dataset_bundle.py -m datasets/pyrit_remote_1.0.1.json [-t T
 ```
 
 Source types: `hf` (dataset repo, optional `revision` / `allow_patterns`), `github`
-(sparse checkout of `paths` at a pinned `ref`), `url` (plain files), `api` (recorded, never baked).
+(sparse checkout of `paths` at a pinned `ref`, optional `url_list` to also download every URL in a
+CSV column), `url` (plain files), `api` (paginated JSON API fetched once at bake time into `items.json`;
+skipped — not failed — when its key secret is missing).
 Failed sources (e.g. gated HF repos the token can't access) are listed in the summary;
 the image is still pushed with everything that succeeded, and the script exits non-zero.
 
-`datasets/pyrit_remote_1.0.1.json` covers all PyRIT v1.0.1 remote seed datasets except
-`garak_*` → `ghcr.io/vamshikadumuri/mlbakery:pyrit-remote-datasets-1.0.1`.
+`datasets/pyrit_remote_1.0.1.json` covers all 69 PyRIT v1.0.1 remote seed datasets (68 remote
+loaders + `jailbreak_templates`) → `ghcr.io/vamshikadumuri/mlbakery:pyrit-remote-datasets-1.0.1`.
+The 0din / promptintel feeds need repo secrets `ODIN_API_KEY` / `PROMPTINTEL_API_KEY`.
 
 From GitHub Actions: **MLBakery Bake** with `dataset_manifest: pyrit_remote_1.0.1.json`.
 
