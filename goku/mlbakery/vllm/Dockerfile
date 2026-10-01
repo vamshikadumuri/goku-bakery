@@ -53,7 +53,11 @@ COPY certs/ /usr/local/share/ca-certificates/extra/
 # ONE layer: CVE patching + runtime deps + vLLM + cleanup.
 # gcc/libc6-dev/python3-dev are REQUIRED: Triton compiles a small C launcher
 # at runtime (triton/runtime/build.py) and fails without a C compiler + Python.h.
-RUN set -eux; \
+# Optional build-time-only CA (e.g. a TLS-intercepting build proxy), passed as
+# `--secret id=build_ca,src=<bundle>`; it is never written into the image.
+RUN --mount=type=secret,id=build_ca,required=false \
+    set -eux; \
+    if [ -s /run/secrets/build_ca ]; then export PIP_CERT=/run/secrets/build_ca REQUESTS_CA_BUNDLE=/run/secrets/build_ca SSL_CERT_FILE=/run/secrets/build_ca; fi; \
     rm -f /usr/local/share/ca-certificates/extra/.gitkeep; \
     update-ca-certificates; \
     # nothing is installed from NVIDIA's apt repo; drop it so apt never
